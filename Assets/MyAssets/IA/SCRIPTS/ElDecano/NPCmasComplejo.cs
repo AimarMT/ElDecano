@@ -39,6 +39,7 @@ public class NPCmasComplejo : MonoBehaviour
     private Vector3 ultimaPosicionJugador;
     public LayerMask capasObstaculos;
 
+   
     void Start()
     {
         agente = GetComponent<NavMeshAgent>();
@@ -59,11 +60,11 @@ public class NPCmasComplejo : MonoBehaviour
 
     void Update()
     {
-        // Seguridad: si no hay jugador asignado, no intentes acceder a jugador.position
+        //Seguridad: si no hay jugador asignado, no intentes acceder a jugador.position
         if (jugador == null)
         {
             Debug.LogWarning("Jugador no asignado en NPCmasComplejo de " + name);
-            // Opcional: puedes volver al patrullaje o desactivar este script
+            
             return;
         }
 
@@ -198,26 +199,33 @@ public class NPCmasComplejo : MonoBehaviour
         estadoActual = nuevo;
         Debug.Log("Nuevo estado: " + nuevo);
 
-        // Cambiar modelo según el estado
+        //Cambiar modelo según el estado
         if (nuevo == Estado.Persiguiendo || nuevo == Estado.Buscando)
         {
-            CambiarModelo(true); // monstruo
+            CambiarModelo(true); //monstruo
         }
-        else // Patrullando
+        else //Patrullando
         {
-            CambiarModelo(false); // normal
+            CambiarModelo(false); //Modelo decano
+
+            //Elige nueva ruta
+            ElegirNuevaRuta();
         }
     }
 
     void CambiarModelo(bool monstruo)
-    {
-        if (modeloNormal != null) modeloNormal.SetActive(!monstruo);
-        if (modeloMonstruo != null) modeloMonstruo.SetActive(monstruo);
+{
+    modeloNormal.SetActive(!monstruo);
+    modeloMonstruo.SetActive(monstruo);
 
-        // Si los animators están en los hijos y quieres usar el animator del NPC,
-        // puedes actualizar "anim" si quieres controlar parámetros.
-        // anim = GetComponent<Animator>(); // si el Animator está en el root seguiría siendo el mismo
-    }
+    if (monstruo)
+        anim = modeloMonstruo.GetComponent<Animator>();
+    else
+        anim = modeloNormal.GetComponent<Animator>();
+
+    anim.SetBool("EsMonstruo", monstruo);
+}
+
 
     void ElegirNuevaRuta()
     {
