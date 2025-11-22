@@ -12,8 +12,15 @@ public class NPCmasComplejo : MonoBehaviour
     public enum Estado { Patrullando, Buscando, Persiguiendo }
     public Estado estadoActual = Estado.Patrullando;
 
+    [Header("Referencias")]
     public Transform jugador;
+
+    [Header("Rutas")]
     public Ruta[] rutas;
+
+    [Header("Modelos")]
+    public GameObject modeloNormal;
+    public GameObject modeloMonstruo;
 
     private int rutaActual = 0;
     private int puntoActual = 0;
@@ -21,34 +28,47 @@ public class NPCmasComplejo : MonoBehaviour
     private NavMeshAgent agente;
     private Animator anim;
 
+    [Header("Detección y velocidades")]
     public float rangoDeteccion = 10f;
-    
-
-    public float velocidadPatrulla = 2f;  //velocidad normal
-    public float velocidadBusqueda = 3.5f;    //velocidad mientras busca
-    public float velocidadPersiguiendo = 5f; //velocidad mientras persigue
-    private float contadorBusqueda = 0f;    //contador de tiempo en busqueda
-    public float tiempoBusqueda = 5f;       //tiempo total que dura buscando
-
+    public float velocidadPatrulla = 2f;
+    public float velocidadBusqueda = 3.5f;
+    public float velocidadPersiguiendo = 5f;
+    private float contadorBusqueda = 0f;
+    public float tiempoBusqueda = 5f;
 
     private Vector3 ultimaPosicionJugador;
-
-    public LayerMask capasObstaculos;//Esta sera la layerMask que marcara que "3D object"s son Obstaculos para que el NPC no vea a tarves.
-
-
+    public LayerMask capasObstaculos;
 
     void Start()
     {
         agente = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
 
+        // Seguridad: desactivar/activar modelos según el estado inicial (Patrullando = normal)
+        CambiarModelo(false);
+
+        if (rutas == null || rutas.Length == 0)
+        {
+            Debug.LogWarning("No hay rutas asignadas a NPCmasComplejo en " + name);
+            enabled = false;
+            return;
+        }
+
         ElegirNuevaRuta();
     }
 
     void Update()
     {
+        // Seguridad: si no hay jugador asignado, no intentes acceder a jugador.position
+        if (jugador == null)
+        {
+            Debug.LogWarning("Jugador no asignado en NPCmasComplejo de " + name);
+            // Opcional: puedes volver al patrullaje o desactivar este script
+            return;
+        }
+
         float distanciaJugador = Vector3.Distance(transform.position, jugador.position);
-        Debug.Log($"Estado: {estadoActual} | Velocidad: {agente.velocity.magnitude:F2}"); //Estado del Decano | Velocidad
+        Debug.Log($"Estado: {estadoActual} | Velocidad: {agente.velocity.magnitude:F2}");
 
         switch (estadoActual)
         {
@@ -60,16 +80,14 @@ public class NPCmasComplejo : MonoBehaviour
                     Vector3 direccion = (jugador.position - origen).normalized;
                     RaycastHit hit;
 
-                    int capasVisibles = LayerMask.GetMask("Player", "Obstaculo"); //Las capas necesarias para el juego ("Player" - Para el jugador | "Obstaculo" para todo aque objeto que bloquee la vision)
-                    Debug.DrawRay(origen, direccion * rangoDeteccion, Color.red);//Dibuja el raycast
+                    int capasVisibles = LayerMask.GetMask("Player", "Obstaculo");
+                    Debug.DrawRay(origen, direccion * rangoDeteccion, Color.red);
 
                     if (Physics.Raycast(origen, direccion, out hit, rangoDeteccion, capasVisibles))
                     {
-           
-
-                        if (hit.transform.CompareTag("Player")) //Compara el tag del GameObject con el que ha golpeado
+                        if (hit.transform.CompareTag("Player"))
                         {
-                            CambiarEstado(Estado.Persiguiendo); //Cambia de estado
+                            CambiarEstado(Estado.Persiguiendo);
                         }
                         else
                         {
@@ -78,17 +96,15 @@ public class NPCmasComplejo : MonoBehaviour
                     }
                 }
                 break;
-            
+
             case Estado.Persiguiendo:
                 Perseguir();
 
-                // Reusa variables con nombres distintos para no chocar
                 Vector3 origenP = transform.position + Vector3.up * 1.5f;
                 Vector3 direccionP = (jugador.position - origenP).normalized;
                 RaycastHit hitP;
 
                 int capasVisiblesP = LayerMask.GetMask("Player", "Obstaculo");
-
                 bool veAlJugador = false;
 
                 if (Physics.Raycast(origenP, direccionP, out hitP, rangoDeteccion, capasVisiblesP))
@@ -96,30 +112,28 @@ public class NPCmasComplejo : MonoBehaviour
                     if (hitP.transform.CompareTag("Player"))
                     {
                         veAlJugador = true;
-                        ultimaPosicionJugador = jugador.position; //guarda la ultima posicion visible
+                        ultimaPosicionJugador = jugador.position;
                     }
                 }
 
-                // si deja de verlo
                 if (!veAlJugador)
                 {
                     CambiarEstado(Estado.Buscando);
                 }
-
-
-            break;
+                break;
 
             case Estado.Buscando:
                 Buscar();
                 break;
         }
 
-        anim.SetFloat("Velocidad", agente.velocity.magnitude / agente.speed);
+        if (anim != null && agente != null)
+            anim.SetFloat("Velocidad", agente.velocity.magnitude / Mathf.Max(1f, agente.speed));
     }
 
     void Patrullar()
     {
-        agente.speed = velocidadPatrulla; //Asigna la velocidad dependiendo de el estado
+        agente.speed = velocidadPatrulla;
         if (!agente.pathPending && agente.remainingDistance < 0.3f)
         {
             puntoActual++;
@@ -133,22 +147,19 @@ public class NPCmasComplejo : MonoBehaviour
     void Perseguir()
     {
         agente.destination = jugador.position;
-        agente.speed = velocidadPersiguiendo; //Asigna la velocidad dependiendo de el estado
+        agente.speed = velocidadPersiguiendo;
     }
 
     void Buscar()
     {
-        // Setea velocidad más alta para búsqueda
         agente.speed = velocidadBusqueda;
-        if (contadorBusqueda == 0)
+        if (contadorBusqueda == 0f)
         {
-            // Ir hacia la última posición conocida del jugador
             agente.destination = ultimaPosicionJugador;
         }
 
         contadorBusqueda += Time.deltaTime;
 
-        // Simula movimiento aleatorio cerca de la última posición
         if (!agente.pathPending && agente.remainingDistance < 0.5f)
         {
             Vector3 randomPos = ultimaPosicionJugador + Random.insideUnitSphere * 3f;
@@ -157,30 +168,28 @@ public class NPCmasComplejo : MonoBehaviour
                 agente.destination = hit.position;
         }
 
-        //si encuentra al jugador nuevamente, vuelve a perseguir
         float distanciaJugador = Vector3.Distance(transform.position, jugador.position);
         Vector3 origen = transform.position + Vector3.up * 1.5f;
         Vector3 direccion = (jugador.position - origen).normalized;
         RaycastHit hitInfo;
 
-        int capasVisibles = LayerMask.GetMask("Player", "Obstaculo"); //coge las capas
+        int capasVisibles = LayerMask.GetMask("Player", "Obstaculo");
 
         if (Physics.Raycast(origen, direccion, out hitInfo, rangoDeteccion, capasVisibles))
         {
             if (hitInfo.transform.CompareTag("Player"))
             {
                 CambiarEstado(Estado.Persiguiendo);
-                agente.speed = velocidadPatrulla; //resetea velocidad
+                agente.speed = velocidadPatrulla;
                 return;
             }
         }
 
-        //si termina el tiempo de busqueda, vuelve a patrullar
         if (contadorBusqueda >= tiempoBusqueda)
         {
             contadorBusqueda = 0f;
             CambiarEstado(Estado.Patrullando);
-            agente.speed = velocidadPatrulla; //vuelve a velocidad normal
+            agente.speed = velocidadPatrulla;
         }
     }
 
@@ -188,12 +197,42 @@ public class NPCmasComplejo : MonoBehaviour
     {
         estadoActual = nuevo;
         Debug.Log("Nuevo estado: " + nuevo);
+
+        // Cambiar modelo según el estado
+        if (nuevo == Estado.Persiguiendo || nuevo == Estado.Buscando)
+        {
+            CambiarModelo(true); // monstruo
+        }
+        else // Patrullando
+        {
+            CambiarModelo(false); // normal
+        }
+    }
+
+    void CambiarModelo(bool monstruo)
+    {
+        if (modeloNormal != null) modeloNormal.SetActive(!monstruo);
+        if (modeloMonstruo != null) modeloMonstruo.SetActive(monstruo);
+
+        // Si los animators están en los hijos y quieres usar el animator del NPC,
+        // puedes actualizar "anim" si quieres controlar parámetros.
+        // anim = GetComponent<Animator>(); // si el Animator está en el root seguiría siendo el mismo
     }
 
     void ElegirNuevaRuta()
     {
+        if (rutas == null || rutas.Length == 0) return;
+
         rutaActual = Random.Range(0, rutas.Length);
         puntoActual = 0;
+
+        //Proteccion: si la ruta elegida no tiene puntos busca otra
+        if (rutas[rutaActual].puntos == null || rutas[rutaActual].puntos.Length == 0)
+        {
+            Debug.LogWarning("Ruta sin puntos en NPCmasComplejo: " + name);
+            return;
+        }
+
         agente.destination = rutas[rutaActual].puntos[puntoActual].position;
     }
 }
