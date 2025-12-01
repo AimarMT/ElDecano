@@ -6,32 +6,29 @@ public class NPCMovement : MonoBehaviour
     public float giroVelocidad = 200f;
     public float tiempoParaNuevaDireccion = 3f;
 
-    private Vector3 direccion;
-
     void Start()
     {
-        NuevaDireccion();
+        GetComponent<Animator>().SetFloat("speed", 2);
         InvokeRepeating(nameof(NuevaDireccion), tiempoParaNuevaDireccion, tiempoParaNuevaDireccion);
     }
 
     void Update()
     {
-        transform.Translate(direccion * speed * Time.deltaTime, Space.World);
+        // Mover SIEMPRE hacia adelante
+        transform.Translate(Vector3.forward * speed * Time.deltaTime);
     }
 
     void NuevaDireccion()
     {
-        direccion = new Vector3(
-            Random.Range(-1f, 1f),
-            0,
-            Random.Range(-1f, 1f)
-        ).normalized;
+        // Solo giramos, sin cambiar la dirección de movimiento
+        float giro = Random.Range(-180f, 180f);
+        transform.Rotate(0, giro, 0);
     }
 
     private void OnCollisionStay(Collision collision)
     {
-        // Si se choca con algo -> gira aleatoriamente
-        transform.Rotate(Vector3.up * Random.Range(120f, 240f));
-        NuevaDireccion();
+        // Si se choca, gira un poco y sigue hacia delante
+        float giroAleatorio = Random.Range(120f, 240f);
+        transform.Rotate(0, giroAleatorio, 0);
     }
 }

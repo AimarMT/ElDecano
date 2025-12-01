@@ -228,6 +228,10 @@ PrefabInstance:
       propertyPath: 'm_BlendShapeWeights.Array.data[2]'
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: f14962bf8c2a50544b362f1694bf4149, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 2d391d41fe3633e49aacd95d43637faa, type: 2}
     - target: {fileID: 6069054193799209920, guid: f14962bf8c2a50544b362f1694bf4149, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -266,9 +270,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f14962bf8c2a50544b362f1694bf4149, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3207286777882956980}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f14962bf8c2a50544b362f1694bf4149, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2976199581939579816}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f14962bf8c2a50544b362f1694bf4149, type: 3}
       insertIndex: -1
       addedObject: {fileID: -6226743425709037095}
@@ -408,28 +409,6 @@ LODGroup:
     - renderer: {fileID: 7909909179481713961}
     - renderer: {fileID: 4154705455967946490}
   m_Enabled: 1
---- !u!95 &2976199581939579816
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4675573491783898455}
-  m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 07cfd655bf23cbc409ab05c4e0d2d549, type: 3}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &-6226743425709037095
 MonoBehaviour:
   m_ObjectHideFlags: 0
