@@ -15,7 +15,6 @@ namespace SojaExiles
             open = false;
         }
 
-
         public void OnActivate(ActivateEventArgs args)
         {
             if (!open)
@@ -45,3 +44,4 @@ namespace SojaExiles
         }
     }
 }
+
