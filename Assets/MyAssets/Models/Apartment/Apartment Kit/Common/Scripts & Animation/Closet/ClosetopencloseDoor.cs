@@ -10,12 +10,15 @@ namespace SojaExiles
         public Animator Closetopenandclose;
         public bool open;
 
+        public AudioSource audioSource;
+        public AudioClip openSound;
+        public AudioClip closeSound;
+
         void Start()
         {
             open = false;
         }
 
-        // Esto se llamará cuando pulses el gatillo derecho en el XR Simple Interactable
         public void OnActivate(ActivateEventArgs args)
         {
             if (!open)
@@ -32,6 +35,10 @@ namespace SojaExiles
         {
             print("you are opening the closet");
             Closetopenandclose.Play("ClosetOpening");
+
+            if (audioSource && openSound)
+                audioSource.PlayOneShot(openSound);
+
             open = true;
             yield return new WaitForSeconds(.5f);
         }
@@ -40,8 +47,13 @@ namespace SojaExiles
         {
             print("you are closing the closet");
             Closetopenandclose.Play("ClosetClosing");
+
+            if (audioSource && closeSound)
+                audioSource.PlayOneShot(closeSound);
+
             open = false;
             yield return new WaitForSeconds(.5f);
         }
     }
 }
+
