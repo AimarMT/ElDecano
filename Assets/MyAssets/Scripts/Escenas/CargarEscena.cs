@@ -1,15 +1,10 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class CargarEscena : MonoBehaviour
+public class LoadPrimeraCinematica : MonoBehaviour
 {
     public void LoadScene()
     {
         SceneManager.LoadScene("PrimeraCinematica");
-    }
-
-    public void ExitAPK()
-    {
-        Application.Quit();
     }
 }
