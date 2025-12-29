@@ -61,15 +61,15 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -2998849557428362637, guid: 7dd8cb0aa10e1f94ea599a72df9a0bf7, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 799b16d1094eaed4bac02c11c52dc744, type: 2}
     - target: {fileID: -1742749399557335713, guid: 7dd8cb0aa10e1f94ea599a72df9a0bf7, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 799b16d1094eaed4bac02c11c52dc744, type: 2}
     - target: {fileID: -1247502549131970529, guid: 7dd8cb0aa10e1f94ea599a72df9a0bf7, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 799b16d1094eaed4bac02c11c52dc744, type: 2}
     - target: {fileID: 919132149155446097, guid: 7dd8cb0aa10e1f94ea599a72df9a0bf7, type: 3}
@@ -77,7 +77,7 @@ PrefabInstance:
       value: npc_csl_pants_00f_01_01
       objectReference: {fileID: 0}
     - target: {fileID: 4178811474427663906, guid: 7dd8cb0aa10e1f94ea599a72df9a0bf7, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 799b16d1094eaed4bac02c11c52dc744, type: 2}
     - target: {fileID: 4858398790129120083, guid: 7dd8cb0aa10e1f94ea599a72df9a0bf7, type: 3}
@@ -85,7 +85,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8515157711405211522, guid: 7dd8cb0aa10e1f94ea599a72df9a0bf7, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 799b16d1094eaed4bac02c11c52dc744, type: 2}
     m_RemovedComponents: []

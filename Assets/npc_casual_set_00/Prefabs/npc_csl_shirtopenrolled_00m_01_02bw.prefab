@@ -53,7 +53,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -6767948433019586573, guid: 842c11437b9150c4e9d09f1efd5e7340, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 40f01e7f83c123f4db9c5f0243a209d5, type: 2}
     - target: {fileID: -5565297619880908968, guid: 842c11437b9150c4e9d09f1efd5e7340, type: 3}
@@ -61,11 +61,11 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -3354899972578415057, guid: 842c11437b9150c4e9d09f1efd5e7340, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 40f01e7f83c123f4db9c5f0243a209d5, type: 2}
     - target: {fileID: -2948295329573996272, guid: 842c11437b9150c4e9d09f1efd5e7340, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 40f01e7f83c123f4db9c5f0243a209d5, type: 2}
     - target: {fileID: -2728880840719488488, guid: 842c11437b9150c4e9d09f1efd5e7340, type: 3}
@@ -73,7 +73,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 753252230029511788, guid: 842c11437b9150c4e9d09f1efd5e7340, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 40f01e7f83c123f4db9c5f0243a209d5, type: 2}
     - target: {fileID: 919132149155446097, guid: 842c11437b9150c4e9d09f1efd5e7340, type: 3}
@@ -81,7 +81,7 @@ PrefabInstance:
       value: npc_csl_shirtopenrolled_00m_01_02bw
       objectReference: {fileID: 0}
     - target: {fileID: 4232511494369029393, guid: 842c11437b9150c4e9d09f1efd5e7340, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 40f01e7f83c123f4db9c5f0243a209d5, type: 2}
     - target: {fileID: 9214675041776909320, guid: 842c11437b9150c4e9d09f1efd5e7340, type: 3}

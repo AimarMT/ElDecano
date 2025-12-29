@@ -8,13 +8,13 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/MainMenu.unity
     guid: 3ddc5ea9d86e47541bd2a07bc128d5c7
   - enabled: 0
     path: Assets/MyAssets/Scenes/PrimeraCinematica.unity
     guid: 00ccb03cb176b5a419dada525559ae0a
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/HouseMap.unity
     guid: 8c097b8de46fd28489567c074bdcbecf
   - enabled: 0

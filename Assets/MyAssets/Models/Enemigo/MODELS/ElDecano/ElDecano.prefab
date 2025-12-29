@@ -682,8 +682,16 @@ MonoBehaviour:
     - {fileID: 0}
     - {fileID: 0}
     - {fileID: 0}
+  modeloNormal: {fileID: 0}
+  modeloMonstruo: {fileID: 0}
   rangoDeteccion: 10
+  velocidadPatrulla: 2
+  velocidadBusqueda: 3.5
+  velocidadPersiguiendo: 5
   tiempoBusqueda: 5
+  capasObstaculos:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &2924254584389823986
 GameObject:
   m_ObjectHideFlags: 0

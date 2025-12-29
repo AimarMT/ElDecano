@@ -53,7 +53,7 @@ PrefabInstance:
       value: Human_BasicMotionsDummy_F
       objectReference: {fileID: 0}
     - target: {fileID: 2775862123970177323, guid: 1841c298173cdad4db8df8602c8f1c8d, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: df81ddc38bae7e945a835735059fe898, type: 2}
     m_RemovedComponents: []
@@ -64,11 +64,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 8050454356945505032}
   m_SourcePrefab: {fileID: 100100000, guid: 1841c298173cdad4db8df8602c8f1c8d, type: 3}
---- !u!4 &2204549521151100739 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -8575875495617118170, guid: 1841c298173cdad4db8df8602c8f1c8d, type: 3}
-  m_PrefabInstance: {fileID: 1613551694279067493}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6477584335157854467 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -3494375403550423450, guid: 1841c298173cdad4db8df8602c8f1c8d, type: 3}
@@ -92,4 +87,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   originalSpine: {fileID: 6477584335157854467}
-  root: {fileID: 2204549521151100739}
