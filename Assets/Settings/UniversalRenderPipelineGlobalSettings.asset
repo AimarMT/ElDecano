@@ -34,8 +34,13 @@ MonoBehaviour:
     m_SettingsList:
       m_List:
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       - rid: 7363207966115758209
       - rid: 7363207966115758210
+=======
+      - rid: 2885479846270468225
+      - rid: 2885479846270468226
+>>>>>>> Stashed changes
 =======
       - rid: 2885479846270468225
       - rid: 2885479846270468226
@@ -44,6 +49,7 @@ MonoBehaviour:
       - rid: 6852985685364965379
       - rid: 6852985685364965380
       - rid: 6852985685364965381
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
       - rid: 7363207966115758211
       - rid: 7363207966115758212
@@ -61,6 +67,24 @@ MonoBehaviour:
       - rid: 8712630790384254976
       - rid: 3342333065272754176
       - rid: 7363207966115758220
+=======
+      - rid: 2885479846270468227
+      - rid: 2885479846270468228
+      - rid: 6852985685364965384
+      - rid: 6852985685364965385
+      - rid: 2885479846270468229
+      - rid: 2885479846270468230
+      - rid: 2885479846270468231
+      - rid: 2885479846270468232
+      - rid: 2885479846270468233
+      - rid: 2885479846270468234
+      - rid: 6852985685364965392
+      - rid: 2885479846270468235
+      - rid: 6852985685364965394
+      - rid: 8712630790384254976
+      - rid: 3342333065272754176
+      - rid: 2885479846270468236
+>>>>>>> Stashed changes
 =======
       - rid: 2885479846270468227
       - rid: 2885479846270468228
@@ -292,6 +316,7 @@ MonoBehaviour:
         m_EnableCompilationCaching: 1
         m_EnableValidityChecks: 1
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     - rid: 7363207966115758209
       type: {class: URPShaderStrippingSetting, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
       data:
@@ -400,6 +425,8 @@ MonoBehaviour:
       type: {class: UniversalRenderPipelineEditorAssets, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
       data:
         m_DefaultSettingsVolumeProfile: {fileID: 11400000, guid: eda47df5b85f4f249abf7abd73db2cb2, type: 2}
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     - rid: 8712630790384254976
