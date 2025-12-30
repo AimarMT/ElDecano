@@ -4,61 +4,58 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 public class RemoteController : MonoBehaviour
 {
-    [Header("Configuración de UI")]
-    [Tooltip("Arrastra aquí el Canvas que quieres que aparezca")]
+    [Header("Referencias")]
     public GameObject canvasMenu;
 
+    [Header("Ajustes de Agarre (Dónde aparece la mano)")]
+    public Vector3 posicionAgarre = new Vector3(0, 0, 0);
+    public Vector3 rotacionAgarre = new Vector3(0, 0, 0);
+
     private XRGrabInteractable grabInteractable;
+    private GameObject customAttach;
 
     void Awake()
     {
-        // Obtenemos la referencia al componente de agarre
         grabInteractable = GetComponent<XRGrabInteractable>();
 
-        if (grabInteractable == null)
-        {
-            Debug.LogError("¡Falta el componente XRGrabInteractable en este objeto!");
-        }
+        // CREACIÓN AUTOMÁTICA DEL PUNTO DE ANCLAJE
+        // Creamos un objeto hijo que servirá como "imán" para la mano
+        customAttach = new GameObject("PuntoDeAgarre_Auto");
+        customAttach.transform.SetParent(this.transform);
+        
+        // Aplicamos tus ajustes del inspector
+        customAttach.transform.localPosition = posicionAgarre;
+        customAttach.transform.localRotation = Quaternion.Euler(rotacionAgarre);
+
+        // Se lo asignamos al componente de Unity
+        grabInteractable.attachTransform = customAttach.transform;
     }
 
     void Start()
     {
-        // Nos aseguramos de que el menú empiece oculto
-        if (canvasMenu != null)
-        {
-            canvasMenu.SetActive(false);
-        }
+        if (canvasMenu != null) canvasMenu.SetActive(false);
     }
 
     private void OnEnable()
     {
-        // Suscribirse a los eventos de agarre
         grabInteractable.selectEntered.AddListener(OnGrab);
         grabInteractable.selectExited.AddListener(OnRelease);
     }
 
     private void OnDisable()
     {
-        // Desvincularse para evitar errores de memoria
         grabInteractable.selectEntered.RemoveListener(OnGrab);
         grabInteractable.selectExited.RemoveListener(OnRelease);
     }
 
     private void OnGrab(SelectEnterEventArgs args)
     {
-        if (canvasMenu != null)
-        {
-            canvasMenu.SetActive(true);
-            Debug.Log("Mando agarrado: Menú activado");
-        }
+        if (canvasMenu != null) canvasMenu.SetActive(true);
+        Debug.Log("Mando agarrado por el punto de anclaje configurado.");
     }
 
     private void OnRelease(SelectExitEventArgs args)
     {
-        if (canvasMenu != null)
-        {
-            canvasMenu.SetActive(false);
-            Debug.Log("Mando soltado: Menú desactivado");
-        }
+        if (canvasMenu != null) canvasMenu.SetActive(false);
     }
 }

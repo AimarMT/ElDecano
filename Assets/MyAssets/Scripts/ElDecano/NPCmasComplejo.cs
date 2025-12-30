@@ -29,23 +29,24 @@ public class NPCmasComplejo : MonoBehaviour
     private Animator anim;
 
     [Header("Detección y velocidades")]
-    public float rangoDeteccion = 10f;
+    public float rangoDeteccion = 15f; 
     public float velocidadPatrulla = 2f;
     public float velocidadBusqueda = 3.5f;
     public float velocidadPersiguiendo = 5f;
-    private float contadorBusqueda = 0f;
     public float tiempoBusqueda = 5f;
+    private float contadorBusqueda = 0f;
 
     private Vector3 ultimaPosicionJugador;
-    public LayerMask capasObstaculos;
 
-   
+    [Header("Filtros de Visión")]
+    [Tooltip("Asegúrate de marcar 'Player' y 'Obstaculo' (o Default) en el Inspector")]
+    public LayerMask capasVisibles;
+
     void Start()
     {
         agente = GetComponent<NavMeshAgent>();
-        anim = GetComponent<Animator>();
-
-        // Seguridad: desactivar/activar modelos según el estado inicial (Patrullando = normal)
+        
+        // Inicializar modelo
         CambiarModelo(false);
 
         if (rutas == null || rutas.Length == 0)
@@ -60,172 +61,166 @@ public class NPCmasComplejo : MonoBehaviour
 
     void Update()
     {
-        //Seguridad: si no hay jugador asignado, no intentes acceder a jugador.position
         if (jugador == null)
         {
-            Debug.LogWarning("Jugador no asignado en NPCmasComplejo de " + name);
-            
+            Debug.LogWarning("¡Asigna el XR Origin al script del Decano!");
             return;
         }
 
         float distanciaJugador = Vector3.Distance(transform.position, jugador.position);
-        Debug.Log($"Estado: {estadoActual} | Velocidad: {agente.velocity.magnitude:F2}");
 
         switch (estadoActual)
         {
             case Estado.Patrullando:
                 Patrullar();
-                if (distanciaJugador < rangoDeteccion)
+                // Si está cerca y hay visión, persigue
+                if (distanciaJugador < rangoDeteccion && TieneVisionDirecta())
                 {
-                    Vector3 origen = transform.position + Vector3.up * 1.5f;
-                    Vector3 direccion = (jugador.position - origen).normalized;
-                    RaycastHit hit;
-
-                    int capasVisibles = LayerMask.GetMask("Player", "Obstaculo");
-                    Debug.DrawRay(origen, direccion * rangoDeteccion, Color.red);
-
-                    if (Physics.Raycast(origen, direccion, out hit, rangoDeteccion, capasVisibles))
-                    {
-                        if (hit.transform.CompareTag("Player"))
-                        {
-                            CambiarEstado(Estado.Persiguiendo);
-                        }
-                        else
-                        {
-                            Debug.Log("NO TE VEO, me tapa: " + hit.transform.name);
-                        }
-                    }
+                    CambiarEstado(Estado.Persiguiendo);
                 }
                 break;
 
             case Estado.Persiguiendo:
                 Perseguir();
-
-                Vector3 origenP = transform.position + Vector3.up * 1.5f;
-                Vector3 direccionP = (jugador.position - origenP).normalized;
-                RaycastHit hitP;
-
-                int capasVisiblesP = LayerMask.GetMask("Player", "Obstaculo");
-                bool veAlJugador = false;
-
-                if (Physics.Raycast(origenP, direccionP, out hitP, rangoDeteccion, capasVisiblesP))
+                // Mientras lo vea, actualizo la última posición conocida
+                if (TieneVisionDirecta())
                 {
-                    if (hitP.transform.CompareTag("Player"))
-                    {
-                        veAlJugador = true;
-                        ultimaPosicionJugador = jugador.position;
-                    }
+                    ultimaPosicionJugador = jugador.position;
                 }
-
-                if (!veAlJugador)
+                else
                 {
+                    // Si lo pierde de vista, pasa a buscar
                     CambiarEstado(Estado.Buscando);
                 }
                 break;
 
             case Estado.Buscando:
                 Buscar();
+                // Si durante la búsqueda lo vuelve a ver, persigue otra vez
+                if (distanciaJugador < rangoDeteccion && TieneVisionDirecta())
+                {
+                    CambiarEstado(Estado.Persiguiendo);
+                }
                 break;
         }
 
-        if (anim != null && agente != null)
-            anim.SetFloat("Velocidad", agente.velocity.magnitude / Mathf.Max(1f, agente.speed));
+        ActualizarAnimaciones();
+    }
+
+    // LÓGICA DE VISIÓN MEJORADA PARA VR
+    bool TieneVisionDirecta()
+    {
+        // Ojos del Decano (ajustado a 1.6m de altura)
+        Vector3 origen = transform.position + Vector3.up * 1.6f;
+        // Objetivo: El pecho/cabeza del jugador (1.3m de altura del XR Origin)
+        Vector3 objetivo = jugador.position + Vector3.up * 1.3f;
+        
+        Vector3 direccion = (objetivo - origen).normalized;
+        RaycastHit hit;
+
+        // Dibujar rayo en el editor para debuguear
+        Debug.DrawRay(origen, direccion * rangoDeteccion, Color.red);
+
+        if (Physics.Raycast(origen, direccion, out hit, rangoDeteccion, capasVisibles))
+        {
+            if (hit.transform.CompareTag("Player"))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     void Patrullar()
     {
         agente.speed = velocidadPatrulla;
-        if (!agente.pathPending && agente.remainingDistance < 0.3f)
+        
+        if (!agente.pathPending && agente.remainingDistance < 0.5f)
         {
             puntoActual++;
             if (puntoActual >= rutas[rutaActual].puntos.Length)
+            {
                 ElegirNuevaRuta();
-
-            agente.destination = rutas[rutaActual].puntos[puntoActual].position;
+            }
+            else
+            {
+                agente.destination = rutas[rutaActual].puntos[puntoActual].position;
+            }
         }
     }
 
     void Perseguir()
     {
-        agente.destination = jugador.position;
         agente.speed = velocidadPersiguiendo;
+        agente.destination = jugador.position;
     }
 
     void Buscar()
     {
         agente.speed = velocidadBusqueda;
+
+        // Ir a la última posición donde vio al jugador
         if (contadorBusqueda == 0f)
-        {
             agente.destination = ultimaPosicionJugador;
-        }
 
         contadorBusqueda += Time.deltaTime;
 
-        if (!agente.pathPending && agente.remainingDistance < 0.5f)
+        // Si llega a la última posición y no lo ve, da vueltas por la zona
+        if (!agente.pathPending && agente.remainingDistance < 0.6f)
         {
-            Vector3 randomPos = ultimaPosicionJugador + Random.insideUnitSphere * 3f;
-            NavMeshHit hit;
-            if (NavMesh.SamplePosition(randomPos, out hit, 3f, NavMesh.AllAreas))
-                agente.destination = hit.position;
+            Vector3 randomPos = ultimaPosicionJugador + Random.insideUnitSphere * 4f;
+            NavMeshHit navHit;
+            if (NavMesh.SamplePosition(randomPos, out navHit, 4f, NavMesh.AllAreas))
+                agente.destination = navHit.position;
         }
 
-        float distanciaJugador = Vector3.Distance(transform.position, jugador.position);
-        Vector3 origen = transform.position + Vector3.up * 1.5f;
-        Vector3 direccion = (jugador.position - origen).normalized;
-        RaycastHit hitInfo;
-
-        int capasVisibles = LayerMask.GetMask("Player", "Obstaculo");
-
-        if (Physics.Raycast(origen, direccion, out hitInfo, rangoDeteccion, capasVisibles))
-        {
-            if (hitInfo.transform.CompareTag("Player"))
-            {
-                CambiarEstado(Estado.Persiguiendo);
-                agente.speed = velocidadPatrulla;
-                return;
-            }
-        }
-
+        // Si pasa el tiempo y no lo encuentra, vuelve a patrullar
         if (contadorBusqueda >= tiempoBusqueda)
         {
             contadorBusqueda = 0f;
             CambiarEstado(Estado.Patrullando);
-            agente.speed = velocidadPatrulla;
         }
     }
 
     void CambiarEstado(Estado nuevo)
     {
-        estadoActual = nuevo;
-        Debug.Log("Nuevo estado: " + nuevo);
+        if (estadoActual == nuevo) return;
 
-        //Cambiar modelo según el estado
+        estadoActual = nuevo;
+        Debug.Log("El Decano ahora está: " + nuevo);
+
         if (nuevo == Estado.Persiguiendo || nuevo == Estado.Buscando)
         {
-            CambiarModelo(true); //monstruo
+            CambiarModelo(true); // Se transforma en monstruo
         }
-        else //Patrullando
+        else
         {
-            CambiarModelo(false); //Modelo decano
-
-            //Elige nueva ruta
+            CambiarModelo(false); // Vuelve a ser el decano normal
             ElegirNuevaRuta();
         }
     }
 
     void CambiarModelo(bool monstruo)
-{
-    modeloNormal.SetActive(!monstruo);
-    modeloMonstruo.SetActive(monstruo);
+    {
+        if (modeloNormal != null) modeloNormal.SetActive(!monstruo);
+        if (modeloMonstruo != null) modeloMonstruo.SetActive(monstruo);
 
-    if (monstruo)
-        anim = modeloMonstruo.GetComponent<Animator>();
-    else
-        anim = modeloNormal.GetComponent<Animator>();
+        // Actualizamos la referencia del animator al modelo que esté activo
+        anim = monstruo ? modeloMonstruo.GetComponent<Animator>() : modeloNormal.GetComponent<Animator>();
+        
+        if (anim != null)
+            anim.SetBool("EsMonstruo", monstruo);
+    }
 
-    anim.SetBool("EsMonstruo", monstruo);
-}
-
+    void ActualizarAnimaciones()
+    {
+        if (anim != null && agente != null)
+        {
+            // Calcula la velocidad para las animaciones (0 quieto, 1 corriendo)
+            float v = agente.velocity.magnitude / agente.speed;
+            anim.SetFloat("Velocidad", v);
+        }
+    }
 
     void ElegirNuevaRuta()
     {
@@ -233,14 +228,8 @@ public class NPCmasComplejo : MonoBehaviour
 
         rutaActual = Random.Range(0, rutas.Length);
         puntoActual = 0;
-
-        //Proteccion: si la ruta elegida no tiene puntos busca otra
-        if (rutas[rutaActual].puntos == null || rutas[rutaActual].puntos.Length == 0)
-        {
-            Debug.LogWarning("Ruta sin puntos en NPCmasComplejo: " + name);
-            return;
-        }
-
-        agente.destination = rutas[rutaActual].puntos[puntoActual].position;
+        
+        if(rutas[rutaActual].puntos.Length > 0)
+            agente.destination = rutas[rutaActual].puntos[puntoActual].position;
     }
 }
