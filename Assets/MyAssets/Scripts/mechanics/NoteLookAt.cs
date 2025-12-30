@@ -6,31 +6,53 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 public class NoteLookAt : MonoBehaviour
 {
     [Header("Referencia a la cabeza")]
-    public Transform head;                // Main Camera
+    public Transform head;
 
     [Header("Rotación y suavizado")]
-    public float rotationSmooth = 10f;    // suavizado de rotación
+    public float rotationSmooth = 10f;
 
     private XRGrabInteractable grab;
+    private bool isGrabbed = false;
 
     void Awake()
     {
         grab = GetComponent<XRGrabInteractable>();
+
+        // Eventos XR
+        grab.selectEntered.AddListener(OnGrabbed);
+        grab.selectExited.AddListener(OnReleased);
+    }
+
+    void OnDestroy()
+    {
+        // Limpieza (buena práctica)
+        grab.selectEntered.RemoveListener(OnGrabbed);
+        grab.selectExited.RemoveListener(OnReleased);
+    }
+
+    void OnGrabbed(SelectEnterEventArgs args)
+    {
+        isGrabbed = true;
+    }
+
+    void OnReleased(SelectExitEventArgs args)
+    {
+        isGrabbed = false;
     }
 
     void Update()
     {
-        if (grab.isSelected && head != null)
-        {
-            // 1️ Rotación: la nota mira hacia la cabeza
-            Vector3 direction = head.position - transform.position;
-            Quaternion targetRotation = Quaternion.LookRotation(-direction); // -direction para que la cara visible mire a la cabeza
+        if (!isGrabbed || head == null)
+            return;
 
-            // 2️ Suavizado de rotación
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSmooth);
+        // La nota mira hacia la cabeza SOLO cuando está agarrada
+        Vector3 direction = head.position - transform.position;
+        Quaternion targetRotation = Quaternion.LookRotation(-direction);
 
-            
-        }
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation,
+            targetRotation,
+            Time.deltaTime * rotationSmooth
+        );
     }
 }
-
