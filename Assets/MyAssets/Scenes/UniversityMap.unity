@@ -75182,6 +75182,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   estadoActual: 0
   jugador: {fileID: 506369068}
+  nombreEscenaMuerte: DeadScene
+  distanciaParaMatar: 2
   rutas:
   - puntos:
     - {fileID: 1708936894}
