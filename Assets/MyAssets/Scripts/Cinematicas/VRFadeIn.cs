@@ -9,6 +9,7 @@ public class VRFadeIn : MonoBehaviour
 
     void Start()
     {
+
         StartCoroutine(FadeFromBlack());
     }
 

@@ -7,8 +7,12 @@ public class NoteGrabUnlock : MonoBehaviour
 {
     public Transform head;
     public float rotationSmooth = 10f;
+    public AudioSource audioSource;
+    public AudioClip clip;
+    public GameObject sombraHumana;
 
     private XRGrabInteractable grab;
+
 
     void Awake()
     {
@@ -25,6 +29,11 @@ public class NoteGrabUnlock : MonoBehaviour
     {
         // Marcar la nota como leída
         GameManager.Instance.notaLeida = true;
+        audioSource.PlayOneShot(clip);
+        if (sombraHumana != null)
+        {
+            sombraHumana.SetActive(true);
+        }
         Debug.Log("Nota leída");
     }
 
