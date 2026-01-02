@@ -4747,7 +4747,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1144580340544477974}
@@ -4854,6 +4854,8 @@ MonoBehaviour:
   speed: 2
   tiempoParaNuevaDireccion: 3
   distanciaDeteccion: 1
+  distanciaMinimaAlPlayer: 2
+  fuerzaEvasion: 6
 --- !u!143 &2185222211350512829
 CharacterController:
   m_ObjectHideFlags: 0
