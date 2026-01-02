@@ -7,9 +7,9 @@ public class CinematicPathController : MonoBehaviour
     public class WaypointAction
     {
         public Transform waypoint;
-        public Transform groundOverride;   // Suelo correcto cuando se para aquí
-        public DoorController doorToOpen;  // Opcional
-        public float waitTime;              // 0 si no hay espera
+        public Transform groundOverride;
+        public DoorController doorToOpen;
+        public float waitTime;
     }
 
     public WaypointAction[] path;
@@ -17,6 +17,8 @@ public class CinematicPathController : MonoBehaviour
     public float moveSpeed = 2f;
     public float rotationSpeed = 6f;
     public float stopDistance = 0.1f;
+
+    public float doorLookDuration = 0.35f;
 
     private int currentIndex = 0;
     private bool isPaused = false;
@@ -28,11 +30,6 @@ public class CinematicPathController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         groundFollower = GetComponent<GroundFollower>();
-
-        if (path == null || path.Length == 0)
-        {
-            Debug.LogError("[CinematicPathController] No path assigned");
-        }
     }
 
     void Update()
@@ -84,21 +81,43 @@ public class CinematicPathController : MonoBehaviour
 
         WaypointAction action = path[currentIndex];
 
+        // 1) Si hay puerta: abrir y girar ANTES de SetForcedGround
+        if (action.doorToOpen != null)
+        {
+            action.doorToOpen.OpenDoor();
+
+            Vector3 lookPos = action.doorToOpen.transform.position;
+            lookPos.y = transform.position.y;
+
+            Quaternion startRot = transform.rotation;
+            Quaternion targetRot = Quaternion.LookRotation((lookPos - transform.position).normalized);
+
+            float t = 0f;
+            float duration = Mathf.Max(0.01f, doorLookDuration);
+
+            while (t < 1f)
+            {
+                t += Time.deltaTime / duration;
+                transform.rotation = Quaternion.Slerp(startRot, targetRot, t);
+                yield return null;
+            }
+
+            transform.rotation = targetRot;
+        }
+
+        // 2) Ahora sí: congelar suelo (y rotación) ya mirando a la puerta
         if (groundFollower != null)
         {
             groundFollower.SetForcedGround(action.groundOverride);
         }
 
-        if (action.doorToOpen != null)
-        {
-            action.doorToOpen.OpenDoor();
-        }
-
+        // 3) Espera
         if (action.waitTime > 0f)
         {
             yield return new WaitForSeconds(action.waitTime);
         }
 
+        // 4) Soltar bloqueo
         if (groundFollower != null)
         {
             groundFollower.ClearForcedGround();
