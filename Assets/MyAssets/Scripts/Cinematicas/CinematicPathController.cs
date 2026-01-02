@@ -7,8 +7,9 @@ public class CinematicPathController : MonoBehaviour
     public class WaypointAction
     {
         public Transform waypoint;
-        public DoorController doorToOpen; // opcional
-        public float waitTime;             // 0 si no hay espera
+        public Transform groundOverride;   // Suelo correcto cuando se para aquí
+        public DoorController doorToOpen;  // Opcional
+        public float waitTime;              // 0 si no hay espera
     }
 
     public WaypointAction[] path;
@@ -19,11 +20,14 @@ public class CinematicPathController : MonoBehaviour
 
     private int currentIndex = 0;
     private bool isPaused = false;
+
     private Animator animator;
+    private GroundFollower groundFollower;
 
     void Start()
     {
         animator = GetComponent<Animator>();
+        groundFollower = GetComponent<GroundFollower>();
 
         if (path == null || path.Length == 0)
         {
@@ -49,25 +53,22 @@ public class CinematicPathController : MonoBehaviour
 
         float distance = Vector3.Distance(transform.position, targetPos);
 
-        // 1. COMPROBAR LLEGADA PRIMERO
         if (distance <= stopDistance)
         {
             animator.SetFloat("speed", 0f);
-            Debug.Log("[CinematicPathController] Reached " + target.name);
             StartCoroutine(HandleWaypoint());
             return;
         }
 
-        // 2. ROTAR (solo visual)
         Vector3 direction = (targetPos - transform.position).normalized;
         Quaternion targetRotation = Quaternion.LookRotation(direction);
+
         transform.rotation = Quaternion.Slerp(
             transform.rotation,
             targetRotation,
             rotationSpeed * Time.deltaTime
         );
 
-        // 3. MOVER DE FORMA SEGURA
         transform.position = Vector3.MoveTowards(
             transform.position,
             targetPos,
@@ -77,24 +78,30 @@ public class CinematicPathController : MonoBehaviour
         animator.SetFloat("speed", moveSpeed);
     }
 
-
     private IEnumerator HandleWaypoint()
     {
         isPaused = true;
 
         WaypointAction action = path[currentIndex];
 
-        // Abrir puerta si existe
+        if (groundFollower != null)
+        {
+            groundFollower.SetForcedGround(action.groundOverride);
+        }
+
         if (action.doorToOpen != null)
         {
-            Debug.Log("[CinematicPathController] Opening door");
             action.doorToOpen.OpenDoor();
         }
 
-        // Esperar si hace falta
         if (action.waitTime > 0f)
         {
             yield return new WaitForSeconds(action.waitTime);
+        }
+
+        if (groundFollower != null)
+        {
+            groundFollower.ClearForcedGround();
         }
 
         currentIndex++;

@@ -7,6 +7,9 @@ public class NPCMovementCC : MonoBehaviour
     public float tiempoParaNuevaDireccion = 4f;
     public float distanciaDeteccion = 1f;
 
+    public float distanciaMinimaAlPlayer = 2f;
+    public float fuerzaEvasion = 6f;
+
     CharacterController controller;
     Animator anim;
 
@@ -14,6 +17,7 @@ public class NPCMovementCC : MonoBehaviour
     float velocidadVertical = 0f;
 
     bool girando = false;
+    Transform player;
 
     void Start()
     {
@@ -23,18 +27,22 @@ public class NPCMovementCC : MonoBehaviour
         if (anim != null)
             anim.SetFloat("speed", speed);
 
+        GameObject p = GameObject.FindGameObjectWithTag("Player");
+        if (p != null)
+            player = p.transform;
+
         InvokeRepeating(nameof(NuevaDireccion), tiempoParaNuevaDireccion, tiempoParaNuevaDireccion);
     }
 
     void Update()
     {
+        EvitarPlayerRadial();
         AplicarMovimiento();
         DetectarObstaculo();
     }
 
     void AplicarMovimiento()
     {
-        // Gravedad
         if (controller.isGrounded)
             velocidadVertical = -1f;
         else
@@ -44,6 +52,33 @@ public class NPCMovementCC : MonoBehaviour
         movimiento.y = velocidadVertical;
 
         controller.Move(movimiento * Time.deltaTime);
+    }
+
+    void EvitarPlayerRadial()
+    {
+        if (player == null) return;
+
+        Vector3 toPlayer = player.position - transform.position;
+        toPlayer.y = 0f;
+
+        float distancia = toPlayer.magnitude;
+
+        if (distancia < distanciaMinimaAlPlayer)
+        {
+            Vector3 direccionHuida = -toPlayer.normalized;
+
+            Quaternion rotObjetivo = Quaternion.LookRotation(direccionHuida);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                rotObjetivo,
+                fuerzaEvasion * Time.deltaTime
+            );
+
+            girando = true;
+            return;
+        }
+
+        girando = false;
     }
 
     void DetectarObstaculo()
