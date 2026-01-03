@@ -1,23 +1,45 @@
+using System.Collections;
 using UnityEngine;
 
-public class TriggerSombraDecano: MonoBehaviour
+public class TriggerSombraDecano : MonoBehaviour
 {
     public MovimientoSombra sombra;
-    
-    public AudioSource audioSource;
-    public AudioClip audioClip;
-    public bool triggered = false;
+
+    [Header("Efecto")]
+    public AudioSource sfxSource;
+    public AudioClip sfxClip;
+
+    [Header("Música de fondo")]
+    public AudioSource musicSource;
+    public AudioClip musicClip;
+
+    private bool triggered = false;
 
     private void OnTriggerEnter(Collider other)
     {
-        if (GameManager.Instance.notaLeida && !triggered)
+        if (!other.CompareTag("Player") || triggered) return;
+
+        if (GameManager.Instance.notaLeida)
         {
-            sombra.StartShadowMovement();
-            audioSource.PlayOneShot(audioClip);
             triggered = true;
-        } else
-        {
-            return;
+
+            // Efecto puntual
+            sfxSource.PlayOneShot(sfxClip);
+
+            // Movimiento de la sombra
+            sombra.StartShadowMovement();
+
+            // Música de fondo con loop
+            StartCoroutine(ReproducirMusicaConDelay());
         }
+    }
+
+    IEnumerator ReproducirMusicaConDelay()
+    {
+        yield return new WaitForSeconds(0.5f); // Delay opcional
+
+        musicSource.clip = musicClip;
+        musicSource.loop = true;
+        musicSource.Play();
     }
 }
