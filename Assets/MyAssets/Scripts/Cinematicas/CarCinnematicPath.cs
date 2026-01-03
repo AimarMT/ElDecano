@@ -92,14 +92,15 @@ public class CarCinnematicPath : MonoBehaviour
             acceleration * Time.deltaTime
         );
 
-        Vector3 desiredDir =
+        // ROTACION
+        Vector3 desiredLookDir =
             current.direction == CarMoveDirection.Forward
                 ? toTarget.normalized
                 : -toTarget.normalized;
 
         smoothSteerDir = Vector3.SmoothDamp(
             smoothSteerDir,
-            desiredDir,
+            desiredLookDir,
             ref steerVelocity,
             steeringSmoothTime
         );
@@ -114,19 +115,11 @@ public class CarCinnematicPath : MonoBehaviour
             );
         }
 
-        Vector3 targetMoveDir =
-            current.direction == CarMoveDirection.Forward
-                ? toTarget.normalized
-                : -toTarget.normalized;
-
-        Vector3 moveDir = Vector3.Lerp(
-            transform.forward,
-            targetMoveDir,
-            0.5f
-        ).normalized;
-
+        // MOVIMIENTO: SIEMPRE HACIA EL WAYPOINT
+        Vector3 moveDir = toTarget.normalized;
         transform.position += moveDir * currentSpeed * Time.deltaTime;
 
+        // RUEDAS
         float targetWheelAngle = 0f;
 
         if (distance > 0.01f)
@@ -158,14 +151,11 @@ public class CarCinnematicPath : MonoBehaviour
         }
 
         debugTimer += Time.deltaTime;
-
         if (debugTimer >= 1f)
         {
             debugTimer = 0f;
-
             Debug.Log(
                 "CAR POS: " + carPos.ToString("F2") +
-                " | FORWARD: " + transform.forward.ToString("F2") +
                 " | WB INDEX: " + currentIndex +
                 " | WB POS: " + wp.position.ToString("F2") +
                 " | TO WB: " + toTarget.ToString("F2") +
