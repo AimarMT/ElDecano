@@ -18,46 +18,95 @@ public class CarCinnematicPath : MonoBehaviour
     [Header("Waypoints (orden manual)")]
     public CarWaypoint[] waypoints;
 
-    [Header("Movimiento del coche")]
-    public float speed = 6f;
+    [Header("Velocidad")]
+    public float minSpeed = 4f;
+    public float maxSpeed = 20f;
+    public float acceleration = 12f;
+
+    [Header("Movimiento")]
     public float rotationSpeed = 5f;
     public float waypointTolerance = 0.4f;
 
-    [Header("Ruedas delanteras")]
+    [Header("Suavizado de trayectoria")]
+    public float steeringSmoothTime = 0.35f;
+
+    [Header("Ruedas delanteras (direccion visual)")]
     public Transform frontLeftWheel;
     public Transform frontRightWheel;
-    public float maxSteerAngle = 30f;
+
+    [Range(0f, 5f)]
+    public float maxWheelSteerAngle = 2.5f;
     public float wheelTurnSpeed = 8f;
 
     private int currentIndex = 0;
-    private float currentSteerAngle = 0f;
+    private float currentSpeed = 0f;
+    private float currentWheelAngle = 0f;
+
+    private CarMoveDirection currentDirection;
+
+    private Vector3 smoothSteerDir;
+    private Vector3 steerVelocity;
+
+    private Quaternion flBaseRot;
+    private Quaternion frBaseRot;
+
+    private float debugTimer = 0f;
+
+    void Start()
+    {
+        if (waypoints == null || waypoints.Length == 0) return;
+
+        currentDirection = waypoints[0].direction;
+        currentSpeed = minSpeed;
+
+        smoothSteerDir = transform.forward;
+        steerVelocity = Vector3.zero;
+
+        if (frontLeftWheel)
+            flBaseRot = frontLeftWheel.localRotation;
+
+        if (frontRightWheel)
+            frBaseRot = frontRightWheel.localRotation;
+    }
 
     void Update()
     {
-        if (waypoints == null || waypoints.Length == 0) return;
         if (currentIndex >= waypoints.Length) return;
 
         CarWaypoint current = waypoints[currentIndex];
         Transform wp = current.waypoint;
 
-        Vector3 toTarget = wp.position - transform.position;
+        Vector3 carPos = transform.position;
+        Vector3 toTarget = wp.position - carPos;
+        float distance = toTarget.magnitude;
 
-        // =========================
-        // MOVIMIENTO DEL COCHE
-        // =========================
-        Vector3 moveDir =
-            current.direction == CarMoveDirection.Forward
-                ? transform.forward
-                : -transform.forward;
-
-        transform.position += moveDir * speed * Time.deltaTime;
-
-        // =========================
-        // ROTACIÓN DEL COCHE (solo forward)
-        // =========================
-        if (current.direction == CarMoveDirection.Forward && toTarget.sqrMagnitude > 0.0001f)
+        if (current.direction != currentDirection)
         {
-            Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized);
+            currentSpeed = minSpeed;
+            currentDirection = current.direction;
+        }
+
+        currentSpeed = Mathf.MoveTowards(
+            currentSpeed,
+            maxSpeed,
+            acceleration * Time.deltaTime
+        );
+
+        Vector3 desiredDir =
+            current.direction == CarMoveDirection.Forward
+                ? toTarget.normalized
+                : -toTarget.normalized;
+
+        smoothSteerDir = Vector3.SmoothDamp(
+            smoothSteerDir,
+            desiredDir,
+            ref steerVelocity,
+            steeringSmoothTime
+        );
+
+        if (smoothSteerDir.sqrMagnitude > 0.001f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(smoothSteerDir);
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
                 targetRot,
@@ -65,39 +114,64 @@ public class CarCinnematicPath : MonoBehaviour
             );
         }
 
-        // =========================
-        // GIRO DE RUEDAS DELANTERAS
-        // =========================
-        float steerTarget = 0f;
+        Vector3 targetMoveDir =
+            current.direction == CarMoveDirection.Forward
+                ? toTarget.normalized
+                : -toTarget.normalized;
 
-        if (toTarget.sqrMagnitude > 0.01f)
+        Vector3 moveDir = Vector3.Lerp(
+            transform.forward,
+            targetMoveDir,
+            0.5f
+        ).normalized;
+
+        transform.position += moveDir * currentSpeed * Time.deltaTime;
+
+        float targetWheelAngle = 0f;
+
+        if (distance > 0.01f)
         {
             Vector3 localTarget = transform.InverseTransformPoint(wp.position);
-            float turnDir = Mathf.Clamp(localTarget.x, -1f, 1f);
-            steerTarget = turnDir * maxSteerAngle;
+            float turn = Mathf.Clamp(localTarget.x, -1f, 1f);
+            targetWheelAngle = turn * maxWheelSteerAngle;
         }
 
-        currentSteerAngle = Mathf.Lerp(
-            currentSteerAngle,
-            steerTarget,
+        currentWheelAngle = Mathf.Lerp(
+            currentWheelAngle,
+            targetWheelAngle,
             wheelTurnSpeed * Time.deltaTime
         );
 
-        if (frontLeftWheel && frontRightWheel)
-        {
+        if (frontLeftWheel)
             frontLeftWheel.localRotation =
-                Quaternion.Euler(0f, currentSteerAngle, 0f);
+                flBaseRot * Quaternion.Euler(0f, currentWheelAngle, 0f);
 
+        if (frontRightWheel)
             frontRightWheel.localRotation =
-                Quaternion.Euler(0f, currentSteerAngle, 0f);
-        }
+                frBaseRot * Quaternion.Euler(0f, currentWheelAngle, 0f);
 
-        // =========================
-        // LLEGADA AL WAYPOINT
-        // =========================
-        if (Vector3.Distance(transform.position, wp.position) < waypointTolerance)
+        if (distance < waypointTolerance)
         {
             currentIndex++;
+            steerVelocity = Vector3.zero;
+            smoothSteerDir = transform.forward;
+        }
+
+        debugTimer += Time.deltaTime;
+
+        if (debugTimer >= 1f)
+        {
+            debugTimer = 0f;
+
+            Debug.Log(
+                "CAR POS: " + carPos.ToString("F2") +
+                " | FORWARD: " + transform.forward.ToString("F2") +
+                " | WB INDEX: " + currentIndex +
+                " | WB POS: " + wp.position.ToString("F2") +
+                " | TO WB: " + toTarget.ToString("F2") +
+                " | DIST: " + distance.ToString("F2") +
+                " | DIR: " + current.direction
+            );
         }
     }
 }
