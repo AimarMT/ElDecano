@@ -35970,7 +35970,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 539164e2769ab3e4a82a970a4f22c7b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fadeController: {fileID: 421433282}
+  fadeController: {fileID: 0}
 --- !u!1001 &231481754
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -67436,7 +67436,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 421433283}
-  - component: {fileID: 421433282}
+  - component: {fileID: 421433285}
+  - component: {fileID: 421433284}
   m_Layer: 0
   m_Name: SceneTransition
   m_TagString: Untagged
@@ -67444,21 +67445,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &421433282
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 421433281}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6732c582958871d4291efb81207dbad6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fadeCanvas: {fileID: 155598357}
-  fadeDuration: 5
-  sceneToLoad: a
 --- !u!4 &421433283
 Transform:
   m_ObjectHideFlags: 0
@@ -67474,6 +67460,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &421433284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 421433281}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc4367d38500ae745b7d0bf2af282aa2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fadeCanvas: {fileID: 155598357}
+  fadeDuration: 2
+  sceneToLoad: 
+--- !u!114 &421433285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 421433281}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b07f816d5152a042b05024195e9e554, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  car: {fileID: 93725286}
+  endWaypointIndex: 2
+  delayBeforeFade: 1.5
+  fadeController: {fileID: 421433284}
 --- !u!1001 &421630795
 PrefabInstance:
   m_ObjectHideFlags: 0

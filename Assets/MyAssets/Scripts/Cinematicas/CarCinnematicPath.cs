@@ -164,4 +164,8 @@ public class CarCinnematicPath : MonoBehaviour
             );
         }
     }
+    public int CurrentWaypointIndex
+    {
+        get { return currentIndex; }
+    }
 }
