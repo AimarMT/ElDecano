@@ -29575,6 +29575,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: WelcomeMat_01
       objectReference: {fileID: 0}
+    - target: {fileID: 4228638966643171970, guid: 7ade998a75360c54ca6e55373981e604, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6070489090118878978, guid: 7ade998a75360c54ca6e55373981e604, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9062602307051458104, guid: 7ade998a75360c54ca6e55373981e604, type: 3}
       propertyPath: m_RootOrder
       value: 5
@@ -345220,7 +345228,7 @@ MonoBehaviour:
   - waypoint: {fileID: 2105676122}
     groundOverride: {fileID: 493677296}
     doorToOpen: {fileID: 0}
-    waitTime: 0
+    waitTime: 3
   moveSpeed: 2
   rotationSpeed: 6
   stopDistance: 0.1
