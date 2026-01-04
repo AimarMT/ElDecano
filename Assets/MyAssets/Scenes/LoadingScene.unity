@@ -286,7 +286,7 @@ GameObject:
   - component: {fileID: 713069916}
   - component: {fileID: 713069917}
   m_Layer: 0
-  m_Name: GestorDeCarga
+  m_Name: LoadingManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -319,6 +319,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 275ba0d0d53fbcf43815adfadb335ae5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  loadingData: {fileID: 11400000, guid: c2f974b3b8c3025428e4df6b61a41861, type: 2}
 --- !u!1 &822112803
 GameObject:
   m_ObjectHideFlags: 0
@@ -1776,7 +1777,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6598815579406187037, guid: 18ddb545287c546e19cc77dc9fbb2189, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6598815579406187037, guid: 18ddb545287c546e19cc77dc9fbb2189, type: 3}
       propertyPath: m_TagString

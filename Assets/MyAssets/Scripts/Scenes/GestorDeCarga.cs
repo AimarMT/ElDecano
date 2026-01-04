@@ -4,24 +4,33 @@ using System.Collections;
 
 public class GestorDeCarga : MonoBehaviour
 {
+    [SerializeField] LoadingSceneData loadingData;
+
     void Start()
     {
-        // En cuanto aparece la escena de carga, empieza a traer la universidad
         StartCoroutine(CargaRealAsincrona());
     }
 
     IEnumerator CargaRealAsincrona()
     {
-        // Esperamos un segundo para que el usuario vea el texto "CARGANDO" 
-        // y el visor VR se estabilice.
         yield return new WaitForSeconds(1.5f);
 
-        AsyncOperation operacion = SceneManager.LoadSceneAsync("UniversityMap");
-        
-        // Esto asegura que cuando termine de cargar, cambie automáticamente
-        operacion.allowSceneActivation = true;
+        if (loadingData == null)
+        {
+            Debug.LogError("LoadingSceneData no asignado en GestorDeCarga");
+            yield break;
+        }
 
-        while (!operacion.isDone)
+        if (string.IsNullOrEmpty(loadingData.sceneToLoad))
+        {
+            Debug.LogError("sceneToLoad está vacío en LoadingSceneData");
+            yield break;
+        }
+
+        AsyncOperation op = SceneManager.LoadSceneAsync(loadingData.sceneToLoad);
+        op.allowSceneActivation = true;
+
+        while (!op.isDone)
         {
             yield return null;
         }

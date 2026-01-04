@@ -7,21 +7,27 @@ public class CinematicFadeScene : MonoBehaviour
     [Header("CanvasGroup del fade")]
     public CanvasGroup fadeCanvas;
 
-    [Header("Duracion del fade")]
+    [Header("Duración del fade")]
     public float fadeDuration = 2f;
 
-    [Header("Escena a cargar")]
-    public string sceneToLoad;
+    [Header("Escena final a cargar")]
+    public string finalSceneToLoad;
+
+    [Header("ScriptableObject de carga")]
+    public LoadingSceneData loadingData;
+
+    [Header("Nombre de la escena de carga")]
+    public string loadingSceneName = "LoadingScene";
 
     private bool isFading = false;
 
     public void StartFade()
     {
         if (isFading) return;
-        StartCoroutine(FadeOut());
+        StartCoroutine(FadeOutAndLoad());
     }
 
-    private IEnumerator FadeOut()
+    private IEnumerator FadeOutAndLoad()
     {
         isFading = true;
 
@@ -31,11 +37,22 @@ public class CinematicFadeScene : MonoBehaviour
         while (t < fadeDuration)
         {
             t += Time.deltaTime;
-            fadeCanvas.alpha = t / fadeDuration;
+            fadeCanvas.alpha = Mathf.Clamp01(t / fadeDuration);
             yield return null;
         }
 
         fadeCanvas.alpha = 1f;
-        SceneManager.LoadScene(sceneToLoad);
+
+        
+        if (loadingData == null)
+        {
+            Debug.LogError("LoadingSceneData no asignado en CinematicFadeScene");
+            yield break;
+        }
+
+        loadingData.sceneToLoad = finalSceneToLoad;
+
+        
+        SceneManager.LoadScene(loadingSceneName);
     }
 }
