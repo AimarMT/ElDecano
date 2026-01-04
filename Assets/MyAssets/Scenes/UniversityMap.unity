@@ -34208,7 +34208,7 @@ GameObject:
   - component: {fileID: 666366690}
   - component: {fileID: 666366689}
   - component: {fileID: 666366688}
-  - component: {fileID: 666366687}
+  - component: {fileID: 666366693}
   m_Layer: 0
   m_Name: Door
   m_TagString: Untagged
@@ -34232,22 +34232,6 @@ Transform:
   - {fileID: 599823084}
   m_Father: {fileID: 1360925134}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &666366687
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 666366685}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54d08c94941de1f47949eaa60c78a2b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioSource: {fileID: 689394019}
-  firstClip: {fileID: 8300000, guid: 9daf8066e3c780845a9765dd65911f92, type: 3}
-  secondClip: {fileID: 8300000, guid: 2c0077dab0e70234fa1a776a13231e21, type: 3}
-  delayBetweenClips: 0.15
 --- !u!114 &666366688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34314,7 +34298,7 @@ MonoBehaviour:
   m_Activated:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 666366687}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: SojaExiles.lockedDoorScript, Assembly-CSharp
         m_MethodName: OnActivate
         m_Mode: 0
@@ -34428,6 +34412,22 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 666366685}
   m_Mesh: {fileID: 2619086233303812490, guid: cd0bf29c9c9af6f4098b74076d25f0cd, type: 3}
+--- !u!114 &666366693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 666366685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54d08c94941de1f47949eaa60c78a2b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioSource: {fileID: 689394019}
+  firstClip: {fileID: 8300000, guid: 9daf8066e3c780845a9765dd65911f92, type: 3}
+  secondClip: {fileID: 8300000, guid: 2c0077dab0e70234fa1a776a13231e21, type: 3}
+  delayBetweenClips: 0.15
 --- !u!4 &668491218 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 95b9d0f816b3b7247b32c4ea8bd8d5af, type: 3}

@@ -82,7 +82,7 @@ public class ToFloorTwoDoor : MonoBehaviour
         playerRoot.position = teleportPosition;
         playerRoot.eulerAngles = teleportRotation;
 
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.3f);
 
 
         t = 0f;
