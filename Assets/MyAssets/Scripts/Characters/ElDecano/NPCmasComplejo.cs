@@ -191,20 +191,32 @@ public class NPCmasComplejo : MonoBehaviour
         else { CambiarModelo(false); ElegirNuevaRuta(); }
     }
 
-    void CambiarModelo(bool monstruo)
-    {
-        if (modeloNormal != null) modeloNormal.SetActive(!monstruo);
-        if (modeloMonstruo != null) modeloMonstruo.SetActive(monstruo);
-        anim = monstruo ? modeloMonstruo.GetComponent<Animator>() : modeloNormal.GetComponent<Animator>();
-        if (anim != null) anim.SetBool("EsMonstruo", monstruo);
-    }
+void CambiarModelo(bool monstruo)
+{
+    if (modeloNormal != null) modeloNormal.SetActive(!monstruo);
+    if (modeloMonstruo != null) modeloMonstruo.SetActive(monstruo);
 
-    void ActualizarAnimaciones()
+    // IMPORTANTE: Buscamos el Animator en el objeto que está activo
+    anim = monstruo ? modeloMonstruo.GetComponent<Animator>() : modeloNormal.GetComponent<Animator>();
+    
+    // Si los modelos hijos NO tienen animator y el animator está en el PADRE:
+    if (anim == null) anim = GetComponent<Animator>();
+
+    if (anim != null) anim.SetBool("EsMonstruo", monstruo);
+}
+
+        void ActualizarAnimaciones()
     {
+        // Verificamos que tanto el animator como el agente existan
         if (anim != null && agente != null)
         {
-            float v = agente.velocity.magnitude / agente.speed;
-            anim.SetFloat("Velocidad", v);
+            // Usamos la velocidad real del NavMeshAgent
+            // Si la velocidad es muy baja, forzamos a 0 para evitar "temblores"
+            float velocidadActual = agente.velocity.magnitude;
+            float valorParaAnimator = (velocidadActual > 0.15f) ? (velocidadActual / agente.speed) : 0f;
+
+            // "Velocidad" debe coincidir EXACTAMENTE con el nombre en tu ventana de Animator
+            anim.SetFloat("Velocidad", valorParaAnimator);
         }
     }
 
@@ -216,4 +228,6 @@ public class NPCmasComplejo : MonoBehaviour
         if(rutas[rutaActual].puntos.Length > 0)
             agente.destination = rutas[rutaActual].puntos[puntoActual].position;
     }
+
+    
 }
