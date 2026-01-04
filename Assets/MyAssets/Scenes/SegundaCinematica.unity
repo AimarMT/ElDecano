@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: ac2eeb98f1b423941b373f537bc56e18, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -67474,7 +67474,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fadeCanvas: {fileID: 155598357}
   fadeDuration: 2
-  sceneToLoad: 
+  finalSceneToLoad: UniversityModelScene
+  loadingData: {fileID: 11400000, guid: c2f974b3b8c3025428e4df6b61a41861, type: 2}
+  loadingSceneName: LoadingScene
 --- !u!114 &421433285
 MonoBehaviour:
   m_ObjectHideFlags: 0
