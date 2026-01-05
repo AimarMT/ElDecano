@@ -4,16 +4,15 @@ using System.Collections;
 
 public class NPCInes : MonoBehaviour
 {
-    public Transform player;
-    public Transform playerCamera;
+    [Header("Referencias")]
+    public Transform cameraTransform;
 
     [Header("Screamer Settings")]
     public float timeToScream = 3f;
-    public float distanceFromPlayer = 1f;
-
-    [Header("Manual Position")]
-    [SerializeField] private float spawnHeight = 1.8f;
-    [SerializeField] private float forwardOffset = 0f;
+    public float distanceFromPlayer = 0.8f; 
+    public float rayDistance = 20f;
+    [Tooltip("Ajusta la altura de Inés al aparecer (valores negativos la bajan)")]
+    public float yOffsetSusto = -1.0f; // <--- NUEVA VARIABLE
 
     [Header("Audio")]
     [SerializeField] private AudioClip screamerAudio;
@@ -21,7 +20,7 @@ public class NPCInes : MonoBehaviour
 
     [Header("Scene Change")]
     [SerializeField] private string sceneToLoad;
-    [SerializeField] private float sceneLoadDelay = 0.5f; // ⏱ tiempo para oír el audio
+    [SerializeField] private float sceneLoadDelay = 1.2f;
 
     private float lookTimer;
     private bool hasTriggered;
@@ -31,71 +30,72 @@ public class NPCInes : MonoBehaviour
     {
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.playOnAwake = false;
-        audioSource.spatialBlend = 0f; // 2D
+        audioSource.spatialBlend = 0f; 
         audioSource.volume = audioVolume;
+
+        if (cameraTransform == null) cameraTransform = Camera.main.transform;
     }
 
     void Update()
     {
-        Vector3 direction = player.position - transform.position;
-        direction.y = 0f;
+        if (hasTriggered) return;
 
-        if (direction.sqrMagnitude > 0.001f)
-            transform.rotation = Quaternion.LookRotation(direction);
+        MirarAlJugador();
 
-        if (!hasTriggered && IsPlayerLookingAtNPC())
+        if (PlayerEstaMirando())
         {
             lookTimer += Time.deltaTime;
-            if (lookTimer >= timeToScream)
-                TriggerDeath();
+            if (lookTimer >= timeToScream) TriggerDeath();
         }
-        else if (!hasTriggered)
+        else
         {
             lookTimer = 0f;
         }
     }
 
-    bool IsPlayerLookingAtNPC()
+    void MirarAlJugador()
     {
-        Vector3 toNPC = transform.position - playerCamera.position;
-        toNPC.Normalize();
-        return Vector3.Angle(playerCamera.forward, toNPC) < 30f;
+        Vector3 dir = cameraTransform.position - transform.position;
+        dir.y = 0f; 
+        if (dir.sqrMagnitude > 0.01f)
+            transform.rotation = Quaternion.LookRotation(dir);
+    }
+
+    bool PlayerEstaMirando()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, rayDistance))
+        {
+            if (hit.transform == transform) return true;
+        }
+        return false;
     }
 
     void TriggerDeath()
     {
         hasTriggered = true;
 
-        // 🔊 Audio
-        if (screamerAudio != null)
-        {
-            audioSource.clip = screamerAudio;
-            audioSource.Play();
-        }
+        if (screamerAudio != null) audioSource.PlayOneShot(screamerAudio);
 
-        // Posicionar NPC frente al jugador
-        Vector3 spawnPosition =
-            playerCamera.position +
-            playerCamera.forward * (distanceFromPlayer + forwardOffset);
+        // 1. Posición: Justo frente a la cámara
+        Vector3 targetPos = cameraTransform.position + (cameraTransform.forward * distanceFromPlayer);
+        
+        // 2. Altura: Usamos la cámara como base y sumamos el offset que elijas en el inspector
+        targetPos.y = cameraTransform.position.y + yOffsetSusto; 
+        transform.position = targetPos;
 
-        spawnPosition.y = spawnHeight;
-        transform.position = spawnPosition;
+        // 3. Rotación: Forzamos que se mantenga vertical
+        Vector3 lookDir = cameraTransform.position - transform.position;
+        lookDir.y = 0; 
+        if (lookDir.sqrMagnitude > 0.01f)
+            transform.rotation = Quaternion.LookRotation(lookDir);
 
-        // Rotar solo en Y
-        Vector3 lookDirection = playerCamera.position - transform.position;
-        lookDirection.y = 0f;
-
-        if (lookDirection.sqrMagnitude > 0.001f)
-            transform.rotation = Quaternion.LookRotation(lookDirection);
-
-        // ⏱ Esperar antes de cambiar de escena
         StartCoroutine(LoadSceneAfterDelay());
     }
 
     IEnumerator LoadSceneAfterDelay()
     {
         yield return new WaitForSeconds(sceneLoadDelay);
-
         if (!string.IsNullOrEmpty(sceneToLoad))
             SceneManager.LoadScene(sceneToLoad);
     }
