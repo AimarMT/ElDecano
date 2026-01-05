@@ -6,6 +6,10 @@ TagManager:
   tags:
   - Nota
   - ElDecano
+  - somos
+  - unos
+  - java
+  - dictos
   layers:
   - Default
   - TransparentFX
@@ -16,10 +20,10 @@ TagManager:
   - Player
   - ElDecano
   - NPC
-  - 
-  - 
-  - 
-  - 
+  - somos
+  - unos
+  - java
+  - dictos
   - 
   - 
   - 

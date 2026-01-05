@@ -1,11 +1,10 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 
 public class ToFloorTwoDoor : MonoBehaviour
 {
-    [Header("Animaci�n de la puerta")]
+    [Header("Animación de la puerta")]
     public Animator openandclose;
     public bool open;
 
@@ -19,84 +18,72 @@ public class ToFloorTwoDoor : MonoBehaviour
     public AudioClip lockedSecondClip;
     public float delayBetweenClips = 0.15f;
 
-    [Header("Fade")]
-    public Image fadeImage;
-    public float fadeDuration = 1.5f;
-
     [Header("Teleport")]
-    public Transform playerRoot; // XR Origin
-    public Vector3 teleportPosition;
-    public Vector3 teleportRotation;
+    public Transform playerRoot;      // XR Origin
+    public Transform teleportTarget;  // Empty con posición/rotación
+
+    [Header("Fade")]
+    //public FadeController fadeController;
 
     private bool isPlayingLocked = false;
     private bool isBusy = false;
 
-    void Start()
+    private void Start()
     {
-        open = false;
+        // Esperamos un frame para que VR se inicialice correctamente
+        StartCoroutine(InitializeVR());
+    }
 
-        if (audioSource == null)
-            audioSource = GetComponent<AudioSource>();
+    private IEnumerator InitializeVR()
+    {
+        yield return null; // espera un frame
+        // Opcional: fade inicial desde negro si quieres cinematic al principio
+        /*if (fadeController != null)
+        {
+            yield return fadeController.FadeOutCoroutine(); // fade de negro a transparente
+        }*/
     }
 
     public void OnActivate(ActivateEventArgs args)
     {
-        // Revisar si la nota fue le�da
         if (!GameManager.Instance.irSegundoPiso && !isBusy)
         {
-            StartCoroutine(fullMovement());
+            StartCoroutine(OpenDoorSequence());
         }
-
-        if (!isPlayingLocked)
+        else if (!isPlayingLocked)
+        {
             StartCoroutine(PlayLockedSequence());
-        return;
+        }
     }
 
-    IEnumerator fullMovement()
+    private IEnumerator OpenDoorSequence()
     {
+        if (teleportTarget == null || playerRoot == null /*|| fadeController == null*/)
+        {
+            Debug.LogError("ToFloorTwoDoor: Faltan referencias asignadas!");
+            yield break;
+        }
+
         isBusy = true;
         openandclose.Play("Opening 1");
 
         if (audioSource && openSound)
             audioSource.PlayOneShot(openSound);
+
         open = true;
 
+        // --- FADE IN (pantalla negra) ---
+        //yield return fadeController.FadeInCoroutine();
 
-        fadeImage.gameObject.SetActive(true);
-        Color color = fadeImage.color;
-        color.a = 0f;
-        fadeImage.color = color;
+        // --- TELEPORT ---
+        playerRoot.position = teleportTarget.position;
+        playerRoot.rotation = teleportTarget.rotation;
 
-        float t = 0f;
-        while (t < fadeDuration)
-        {
-            t += Time.deltaTime;
-            color.a = t / fadeDuration;
-            fadeImage.color = color;
-            yield return null;
-        }
+        yield return new WaitForEndOfFrame(); // asegura que la cámara se estabilice
 
-        color.a = 1f;
-        fadeImage.color = color;
+        // --- FADE OUT (pantalla visible) ---
+        //yield return fadeController.FadeOutCoroutine();
 
-        playerRoot.position = teleportPosition;
-        playerRoot.eulerAngles = teleportRotation;
-
-        yield return new WaitForSeconds(0.3f);
-
-
-        t = 0f;
-        while (t < fadeDuration)
-        {
-            t += Time.deltaTime;
-            color.a = 1f - (t / fadeDuration);
-            fadeImage.color = color;
-            yield return null;
-        }
-
-        color.a = 0f;
-        fadeImage.color = color;
-        fadeImage.gameObject.SetActive(false);
         openandclose.Play("Closing 1");
         open = false;
 
@@ -104,7 +91,7 @@ public class ToFloorTwoDoor : MonoBehaviour
         isBusy = false;
     }
 
-    IEnumerator PlayLockedSequence()
+    private IEnumerator PlayLockedSequence()
     {
         isPlayingLocked = true;
 
@@ -114,12 +101,9 @@ public class ToFloorTwoDoor : MonoBehaviour
             yield break;
         }
 
-        // Primer sonido
         sourceLocked.PlayOneShot(lockedFirstClip);
-
         yield return new WaitForSeconds(delayBetweenClips);
 
-        // Segundo sonido
         if (lockedSecondClip != null)
         {
             sourceLocked.PlayOneShot(lockedSecondClip);
