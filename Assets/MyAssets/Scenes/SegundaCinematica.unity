@@ -121792,7 +121792,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   xrOrigin: {fileID: 1753551084}
-  cinematicCamera: {fileID: 1648744125}
+  cinematicCamera: {fileID: 785348502}
 --- !u!1001 &762043673
 PrefabInstance:
   m_ObjectHideFlags: 0
