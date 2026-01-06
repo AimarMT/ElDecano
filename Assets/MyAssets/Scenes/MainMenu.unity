@@ -1154,7 +1154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99a40a356b315da4092fe22728f77f23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gazeTime: 5
+  stayTime: 0
 --- !u!82 &497190934
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1267,12 +1267,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.376812, y: 0.77568394, z: 0.02}
-  m_Center: {x: -0.017259598, y: -0.030545142, z: 0}
+  m_Size: {x: 1.376812, y: 0.77568394, z: 1.9225026}
+  m_Center: {x: -0.017259598, y: -0.030545142, z: -0.9512513}
 --- !u!1 &527196690
 GameObject:
   m_ObjectHideFlags: 0

@@ -38,6 +38,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/MyAssets/Scenes/GameOverMenu.unity
     guid: f2cb585bb57b0794ab2060a3ff8e61b0
+  - enabled: 0
+    path: Assets/MyAssets/Scenes/WinMenu.unity
+    guid: 92607244be590e444b2bf46f435d33f6
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: c348712bda248c246b8c49b3db54643f, type: 3}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 759f73e9739eee649973922d6ee468e4, type: 2}
