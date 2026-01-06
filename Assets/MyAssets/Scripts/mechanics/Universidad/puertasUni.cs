@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
-public class puertasUni : MonoBehaviour
+public class PuertasUni : MonoBehaviour
 {
     [Header("Animación de la puerta")]
     public Animator openandclose;

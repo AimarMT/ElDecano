@@ -1,9 +1,9 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using UnityEngine.XR.Interaction.Toolkit;
 
-public class ToFloorOneDoor : MonoBehaviour
+public class FinalizarJuego : MonoBehaviour
 {
     [Header("Animación de la puerta")]
     public Animator openandclose;
@@ -20,13 +20,6 @@ public class ToFloorOneDoor : MonoBehaviour
     public AudioClip lockedSecondClipNoteGrabbed;
     public float delayBetweenClips = 0.15f;
 
-    [Header("Fade")]
-    public Image fadeImage;
-    public float fadeDuration = 1.5f;
-
-    [Header("Teleport")]
-    public Transform playerRoot;      // XR Origin
-    public Transform teleportPoint;   // Empty de destino
 
     private bool isPlayingLocked = false;
     private bool isBusy = false;
@@ -41,7 +34,7 @@ public class ToFloorOneDoor : MonoBehaviour
 
     public void OnActivate(ActivateEventArgs args)
     {
-        if (!GameManager.Instance.primerMinijuegoCompletado)
+        if (!GameManager.Instance.segundoMinijuegoCompletado)
         {
             if (!isPlayingLocked)
                 StartCoroutine(PlayLockedSequence());
@@ -58,22 +51,12 @@ public class ToFloorOneDoor : MonoBehaviour
     {
         isBusy = true;
         openandclose.Play("Opening 1");
+        audioSource.PlayOneShot(openSound);
 
-        if (audioSource && openSound)
-            audioSource.PlayOneShot(openSound);
+        yield return new WaitForSeconds(0.5f);
 
-        open = true;
+        SceneManager.LoadScene("WinMenu");
 
-        // Teletransporte al Empty (posición y rotación en mundo)
-        playerRoot.position = teleportPoint.position;
-        playerRoot.rotation = teleportPoint.rotation;
-
-        yield return new WaitForSeconds(0.3f);
-
-        openandclose.Play("Closing 1");
-        open = false;
-
-        GameManager.Instance.irSegundoPiso = true;
         isBusy = false;
     }
 
@@ -90,18 +73,12 @@ public class ToFloorOneDoor : MonoBehaviour
         sourceLocked.PlayOneShot(lockedFirstClip);
         yield return new WaitForSeconds(delayBetweenClips);
 
-        if (GameManager.Instance.notaUniLeida)
-        {
-            sourceLocked.PlayOneShot(lockedSecondClipNoteGrabbed);
-            yield return new WaitForSeconds(lockedSecondClipNoteGrabbed.length);
-        }
-        else if (lockedSecondClip != null)
-        {
+        
+        
             sourceLocked.PlayOneShot(lockedSecondClip);
             yield return new WaitForSeconds(lockedSecondClip.length);
-        }
+        
 
         isPlayingLocked = false;
     }
 }
-

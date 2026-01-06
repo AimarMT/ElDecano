@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class PuzzleNotasManager : MonoBehaviour
@@ -14,6 +16,10 @@ public class PuzzleNotasManager : MonoBehaviour
 
     [Header("Configuración del puzzle")]
     public List<SocketNotaCorrecta> sockets;
+
+    public AudioSource audioSource;
+    public AudioClip audioClip1;
+    public AudioClip audioClip2;
 
     private bool puzzleCompletado = false;
 
@@ -62,7 +68,7 @@ public class PuzzleNotasManager : MonoBehaviour
                 return;
         }
 
-        // Si llega aquí, TODO es correcto
+        // Si llega aquí, todas las notas están correctas
         PuzzleCompletado();
     }
 
@@ -70,21 +76,53 @@ public class PuzzleNotasManager : MonoBehaviour
     {
         puzzleCompletado = true;
 
-        GameManager.Instance.primerMinijuegoCompletado = true;
-
-        foreach (var s in sockets)
+        // Actualizar el estado de minijuegos
+        if (!GameManager.Instance.primerMinijuegoCompletado)
         {
-            // Desactivar el socket
-            s.socket.enabled = false;
-
-            // Bloquear la nota
-            GameObject nota = s.socket.firstInteractableSelected.transform.gameObject;
-
-  
-            
+            GameManager.Instance.primerMinijuegoCompletado = true;
+        }
+        else
+        {
+            GameManager.Instance.segundoMinijuegoCompletado = true;
         }
 
-        Debug.Log(" Minijuego de notas completado");
-    }
-}
+        // Bloquear todas las notas y desactivar sockets
+        foreach (var s in sockets)
+        {
+            if (s.socket.hasSelection)
+            {
+                GameObject nota = s.socket.firstInteractableSelected.transform.gameObject;
 
+                // Romper relación con el socket
+                nota.transform.SetParent(null);
+
+                // Desactivar XRGrabInteractable si existe
+                XRGrabInteractable grab = nota.GetComponent<XRGrabInteractable>();
+                if (grab != null)
+                    grab.enabled = false;
+
+                // Hacer Rigidbody cinemático y desactivar gravedad
+                Rigidbody rb = nota.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.isKinematic = true;
+                    rb.useGravity = false;
+                }
+            }
+
+            // Desactivar el socket
+            s.socket.enabled = false;
+        }
+        StartCoroutine(PlayAudios());
+        Debug.Log("Minijuego de notas completado");
+    }
+
+     IEnumerator PlayAudios()
+    {
+        audioSource.PlayOneShot(audioClip1);
+        yield return new WaitForSeconds(0.5f);
+        audioSource.PlayOneShot(audioClip2);
+
+    }
+
+}

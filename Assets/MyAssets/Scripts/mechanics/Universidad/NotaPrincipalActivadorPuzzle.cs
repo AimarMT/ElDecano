@@ -97,6 +97,6 @@ public class NotaPrincipalActivadorPuzzle : MonoBehaviour
             puntosDisponibles.RemoveAt(index);
         }
 
-        Debug.Log("📜 Notas del puzzle colocadas aleatoriamente y listas para XR.");
+        Debug.Log("Notas del puzzle colocadas aleatoriamente y listas para XR.");
     }
 }

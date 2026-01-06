@@ -1,9 +1,8 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 
-public class ToFloorOneDoor : MonoBehaviour
+public class piso1puertas : MonoBehaviour
 {
     [Header("Animación de la puerta")]
     public Animator openandclose;
@@ -12,24 +11,15 @@ public class ToFloorOneDoor : MonoBehaviour
     [Header("Sonidos de abrir/cerrar")]
     public AudioSource audioSource;
     public AudioClip openSound;
+    public AudioClip closeSound;
 
     [Header("Sonidos de puerta cerrada")]
     public AudioSource sourceLocked;
     public AudioClip lockedFirstClip;
     public AudioClip lockedSecondClip;
-    public AudioClip lockedSecondClipNoteGrabbed;
     public float delayBetweenClips = 0.15f;
 
-    [Header("Fade")]
-    public Image fadeImage;
-    public float fadeDuration = 1.5f;
-
-    [Header("Teleport")]
-    public Transform playerRoot;      // XR Origin
-    public Transform teleportPoint;   // Empty de destino
-
     private bool isPlayingLocked = false;
-    private bool isBusy = false;
 
     void Start()
     {
@@ -41,40 +31,41 @@ public class ToFloorOneDoor : MonoBehaviour
 
     public void OnActivate(ActivateEventArgs args)
     {
-        if (!GameManager.Instance.primerMinijuegoCompletado)
+        // Revisar si la nota fue leída
+        if (!GameManager.Instance.triggerPiso1Activado)
         {
             if (!isPlayingLocked)
                 StartCoroutine(PlayLockedSequence());
             return;
         }
 
-        if (!isBusy)
-        {
-            StartCoroutine(fullMovement());
-        }
+        // Abrir o cerrar normalmente
+        if (!open)
+            StartCoroutine(opening());
+        else
+            StartCoroutine(closing());
     }
 
-    IEnumerator fullMovement()
+    IEnumerator opening()
     {
-        isBusy = true;
         openandclose.Play("Opening 1");
 
         if (audioSource && openSound)
             audioSource.PlayOneShot(openSound);
 
         open = true;
+        yield return new WaitForSeconds(0.5f);
+    }
 
-        // Teletransporte al Empty (posición y rotación en mundo)
-        playerRoot.position = teleportPoint.position;
-        playerRoot.rotation = teleportPoint.rotation;
-
-        yield return new WaitForSeconds(0.3f);
-
+    IEnumerator closing()
+    {
         openandclose.Play("Closing 1");
-        open = false;
 
-        GameManager.Instance.irSegundoPiso = true;
-        isBusy = false;
+        if (audioSource && closeSound)
+            audioSource.PlayOneShot(closeSound);
+
+        open = false;
+        yield return new WaitForSeconds(0.5f);
     }
 
     IEnumerator PlayLockedSequence()
@@ -87,15 +78,13 @@ public class ToFloorOneDoor : MonoBehaviour
             yield break;
         }
 
+        // Primer sonido
         sourceLocked.PlayOneShot(lockedFirstClip);
+
         yield return new WaitForSeconds(delayBetweenClips);
 
-        if (GameManager.Instance.notaUniLeida)
-        {
-            sourceLocked.PlayOneShot(lockedSecondClipNoteGrabbed);
-            yield return new WaitForSeconds(lockedSecondClipNoteGrabbed.length);
-        }
-        else if (lockedSecondClip != null)
+        // Segundo sonido
+        if (lockedSecondClip != null)
         {
             sourceLocked.PlayOneShot(lockedSecondClip);
             yield return new WaitForSeconds(lockedSecondClip.length);
@@ -104,4 +93,3 @@ public class ToFloorOneDoor : MonoBehaviour
         isPlayingLocked = false;
     }
 }
-
