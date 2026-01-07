@@ -9,6 +9,9 @@ public class ToFloorOneDoor : MonoBehaviour
     public Animator openandclose;
     public bool open;
 
+
+    public GameObject decanoPiso2;
+
     [Header("Sonidos de abrir/cerrar")]
     public AudioSource audioSource;
     public AudioClip openSound;
@@ -74,6 +77,8 @@ public class ToFloorOneDoor : MonoBehaviour
         open = false;
 
         GameManager.Instance.irSegundoPiso = true;
+        decanoPiso2.SetActive(true);
+
         isBusy = false;
     }
 

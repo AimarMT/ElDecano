@@ -4,8 +4,8 @@ using UnityEngine;
 public class DecanoSpawnPiso1 : MonoBehaviour
 {
     [Header("Prefab a activar")]
-    public GameObject prefabDecano; 
-
+    public GameObject prefabDecano;
+    
 
 
 
