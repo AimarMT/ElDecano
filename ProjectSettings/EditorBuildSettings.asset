@@ -8,34 +8,34 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/MainMenu.unity
     guid: 3ddc5ea9d86e47541bd2a07bc128d5c7
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/PrimeraCinematica.unity
     guid: 00ccb03cb176b5a419dada525559ae0a
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/HouseMap.unity
     guid: 8c097b8de46fd28489567c074bdcbecf
   - enabled: 1
     path: Assets/MyAssets/Scenes/SegundaCinematica.unity
     guid: 7f9b380ad6c35f04ea96ab49c506dcba
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/UniversityModelScene.unity
     guid: 4df25eb4e55ebf14d94bd7854d36befe
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/LoadingScene.unity
     guid: c6f0348bd63932242895a069590e4a46
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/UniversityMap.unity
     guid: de7d0c3127115df40ade13812c7e5139
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/DeadScene.unity
     guid: f08315b4c7fae7c459e026e34c41ad25
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/DeadSceneInes.unity
     guid: 8ef9d927cc7694c4a87194120c5c4103
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/GameOverMenu.unity
     guid: f2cb585bb57b0794ab2060a3ff8e61b0
   - enabled: 1
