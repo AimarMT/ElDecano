@@ -6,8 +6,13 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+<<<<<<< Updated upstream
     path: Assets/MyAssets/Scenes/XRyMJ/EscenaPruebaManos.unity
     guid: 94ff456e7f5fbfc419ce8523f5ee7639
+=======
+    path: Assets/MyAssets/Scenes/PruebasMultijugador2.unity
+    guid: c2fc3442dca6d864aa5560d4c359ad3b
+>>>>>>> Stashed changes
   m_configObjects:
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 93f5f9affa406f5448a2d18f476d919a, type: 2}
   m_UseUCBPForAssetBundles: 0
