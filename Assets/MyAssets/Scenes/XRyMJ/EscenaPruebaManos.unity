@@ -8074,7 +8074,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isLeftHand: 1
-  pinchDistanceThreshold: 0.03
+  pinchDistanceThreshold: 0.07
 --- !u!1 &6038107471570670788
 GameObject:
   m_ObjectHideFlags: 0
