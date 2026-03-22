@@ -1,22 +1,25 @@
 using UnityEngine;
 using UnityEngine.XR.Hands;
-
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using System.Collections.Generic;
 
 public class HandGrabByFist : MonoBehaviour
 {
     private XRDirectInteractor _interactor;
     private XRHandSubsystem _handSubsystem;
-    
+
     [Header("Configuracion")]
     public bool isLeftHand = true;
     public float fistThreshold = 0.08f;
+
+    private bool _isGrabbing = false;
 
     void Awake() => _interactor = GetComponent<XRDirectInteractor>();
 
     void Update()
     {
+        Debug.Log("Hovered: " + _interactor.interactablesHovered.Count);
         if (_handSubsystem == null || !_handSubsystem.running)
             _handSubsystem = GetHandSubsystem();
 
@@ -26,29 +29,43 @@ public class HandGrabByFist : MonoBehaviour
 
             if (hand.isTracked)
             {
-                bool isFist = CheckFist(hand);
-                
-                // Unity 6 usa 'hasSelection' en lugar de 'hasInteractablesSelected'
-                if (isFist && !_interactor.hasSelection)
+                UpdateInteractorPose(hand);
+
+                bool fistDetected = CheckFist(hand);
+
+                if (fistDetected && !_isGrabbing)
                 {
-                    TryGrab();
+                    _isGrabbing = true;
+                    OnGrabStart();
                 }
-                else if (!isFist && _interactor.hasSelection)
+                else if (!fistDetected && _isGrabbing)
                 {
-                    _interactor.EndManualInteraction();
+                    _isGrabbing = false;
+                    OnGrabEnd();
                 }
             }
         }
     }
 
-    private void TryGrab()
+    private void OnGrabStart()
     {
-        // Unity 6: comprobamos si hay algo cerca para agarrar
-        if (_interactor.hasHover)
+        if (_interactor.interactablesHovered.Count > 0 && !_interactor.hasSelection)
         {
-            // Accedemos al primer objeto que estamos tocando
-            var interactable = _interactor.interactablesHovered[0];
-            _interactor.StartManualInteraction((UnityEngine.XR.Interaction.Toolkit.Interactables.IXRSelectInteractable)interactable);
+            var target = _interactor.interactablesHovered[0] as IXRSelectInteractable;
+            if (target != null)
+            {
+                _interactor.StartManualInteraction(target);
+                Debug.Log("[Fist] Agarrando");
+            }
+        }
+    }
+
+    private void OnGrabEnd()
+    {
+        if (_interactor.hasSelection)
+        {
+            _interactor.EndManualInteraction();
+            Debug.Log("[Fist] Soltado");
         }
     }
 
@@ -56,11 +73,23 @@ public class HandGrabByFist : MonoBehaviour
     {
         var middleTip = hand.GetJoint(XRHandJointID.MiddleTip);
         var wrist = hand.GetJoint(XRHandJointID.Wrist);
+
         if (middleTip.TryGetPose(out Pose tipPose) && wrist.TryGetPose(out Pose wristPose))
         {
             return Vector3.Distance(tipPose.position, wristPose.position) < fistThreshold;
         }
         return false;
+    }
+
+    void UpdateInteractorPose(XRHand hand)
+    {
+        var indexTip = hand.GetJoint(XRHandJointID.IndexTip);
+
+        if (indexTip.TryGetPose(out Pose pose))
+        {
+            transform.position = pose.position;
+            transform.rotation = pose.rotation;
+        }
     }
 
     private XRHandSubsystem GetHandSubsystem()
