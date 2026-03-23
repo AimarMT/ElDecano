@@ -52,5 +52,10 @@ public class NetworkPlayer2 : NetworkBehaviour
 
         if (rightHand != null && xr.rightHand != null)
             rightHand.SetPositionAndRotation(xr.rightHand.position, xr.rightHand.rotation);
+
+        if (IsOwner && XRRigReferences.Instance != null)
+        {
+            Debug.Log($"Player {NetworkObject.OwnerClientId} moving root to {XRRigReferences.Instance.root.name}");
+        }
     }
 }
