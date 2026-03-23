@@ -16,22 +16,41 @@ public class NetworkPlayer2 : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        if (!IsOwner)
-            return;
+        if (!IsOwner) return;
 
-        foreach (Renderer r in meshesToDisable)
+        // Auto-asignación para que el prefab no dé errores de referencia propia
+        if (root == null) root = transform;
+        if (head == null) head = transform;
+        if (leftHand == null) leftHand = transform;
+        if (rightHand == null) rightHand = transform;
+
+        if (meshesToDisable != null)
         {
-            r.enabled = false;
+            foreach (Renderer r in meshesToDisable)
+            {
+                if (r != null) r.enabled = false;
+            }
         }
     }
+
     void Update()
     {
-        if (!IsOwner)
-            return;
+        // 1. Verificamos que seamos el dueño y que exista el Singleton del Rig
+        if (!IsOwner || XRRigReferences.Instance == null) return;
 
-        root.SetPositionAndRotation(XRRigReferences.Instance.root.position, XRRigReferences.Instance.root.rotation);
-        head.SetPositionAndRotation(XRRigReferences.Instance.head.position, XRRigReferences.Instance.head.rotation);
-        leftHand.SetPositionAndRotation(XRRigReferences.Instance.leftHand.position, XRRigReferences.Instance.leftHand.rotation);
-        rightHand.SetPositionAndRotation(XRRigReferences.Instance.rightHand.position, XRRigReferences.Instance.rightHand.rotation);
+        var xr = XRRigReferences.Instance;
+
+        // 2. VERIFICACIÓN DE SEGURIDAD: Solo movemos si las piezas del Rig están asignadas en la escena
+        if (root != null && xr.root != null)
+            root.SetPositionAndRotation(xr.root.position, xr.root.rotation);
+
+        if (head != null && xr.head != null)
+            head.SetPositionAndRotation(xr.head.position, xr.head.rotation);
+
+        if (leftHand != null && xr.leftHand != null)
+            leftHand.SetPositionAndRotation(xr.leftHand.position, xr.leftHand.rotation);
+
+        if (rightHand != null && xr.rightHand != null)
+            rightHand.SetPositionAndRotation(xr.rightHand.position, xr.rightHand.rotation);
     }
 }
