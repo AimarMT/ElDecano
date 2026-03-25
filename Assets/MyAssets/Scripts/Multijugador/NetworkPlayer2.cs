@@ -1,67 +1,78 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 public class NetworkPlayer2 : NetworkBehaviour
 {
-    [SerializeField] Transform root;
+    [Header("Referencias del Avatar (Hijos del Prefab)")]
     [SerializeField] Transform head;
     [SerializeField] Transform leftHand;
     [SerializeField] Transform rightHand;
 
+    [Header("Visuales")]
     [SerializeField] Renderer[] meshesToDisable;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        if (!IsOwner) return;
 
-        if (root == null) root = transform;
-        if (head == null) head = transform;
-
-        foreach (Renderer r in meshesToDisable)
+        if (IsOwner)
         {
-            if (r != null) r.enabled = false;
+            // Ocultamos nuestras mallas para no ver el interior de nuestra cabeza
+            foreach (Renderer r in meshesToDisable)
+            {
+                if (r != null) r.enabled = false;
+            }
         }
     }
 
     void Update()
     {
-        // Solo el dueño de este avatar (sea Host o Cliente) manda su posición
-        if (!IsOwner || XRRigReferences.Instance == null) return;
+        // Solo el dueño localiza su cámara y manda la posición a los demás
+        if (!IsOwner || XRRigReferences2.Instance == null) return;
 
-        var xr = XRRigReferences.Instance;
+        var xr = XRRigReferences2.Instance;
+        if (xr.head == null) return;
 
-        // 1. Moverse a sí mismo localmente
-        if (xr.root != null) root.SetPositionAndRotation(xr.root.position, xr.root.rotation);
-        if (xr.head != null) head.SetPositionAndRotation(xr.head.position, xr.head.rotation);
-        if (xr.leftHand != null && leftHand != null) leftHand.SetPositionAndRotation(xr.leftHand.position, xr.leftHand.rotation);
-        if (xr.rightHand != null && rightHand != null) rightHand.SetPositionAndRotation(xr.rightHand.position, xr.rightHand.rotation);
+        // --- SOLUCIÓN DEFINITIVA: SEGUIMIENTO GLOBAL ---
 
-        // 2. Avisar al resto del mundo
-        UpdatePositionServerRpc(root.position, root.rotation, head.position, head.rotation);
+        // 1. Movemos el objeto raíz del avatar a la posición de la cámara en el mundo
+        // Al usar .position (global), el avatar te seguirá aunque el XR Origin esté quieto
+        transform.position = xr.head.position;
+
+        // 2. Rotamos el cuerpo para que mire hacia donde mira la cámara (solo eje Y)
+        Vector3 camForward = xr.head.forward;
+        camForward.y = 0;
+        if (camForward.sqrMagnitude > 0.01f)
+        {
+            transform.rotation = Quaternion.LookRotation(camForward);
+        }
+
+        // 3. Posicionamos las manos y la cabeza del prefab en sus sitios globales
+        if (head != null) head.SetPositionAndRotation(xr.head.position, xr.head.rotation);
+
+        if (leftHand != null && xr.leftHand != null)
+            leftHand.SetPositionAndRotation(xr.leftHand.position, xr.leftHand.rotation);
+
+        if (rightHand != null && xr.rightHand != null)
+            rightHand.SetPositionAndRotation(xr.rightHand.position, xr.rightHand.rotation);
+
+        // 4. Sincronizamos con el servidor
+        UpdatePositionServerRpc(transform.position, transform.rotation, head.position, head.rotation);
     }
 
     [ServerRpc]
     void UpdatePositionServerRpc(Vector3 pos, Quaternion rot, Vector3 hPos, Quaternion hRot)
     {
-        // El servidor actualiza su versión de este jugador
-        root.SetPositionAndRotation(pos, rot);
+        transform.SetPositionAndRotation(pos, rot);
         if (head != null) head.SetPositionAndRotation(hPos, hRot);
-
-        // 3. ¡ESTA ES LA CLAVE! El servidor avisa a todos los demás clientes (ClientRpc)
         UpdatePositionClientRpc(pos, rot, hPos, hRot);
     }
 
     [ClientRpc]
     void UpdatePositionClientRpc(Vector3 pos, Quaternion rot, Vector3 hPos, Quaternion hRot)
     {
-        // Si yo soy el que envió la posición, ignoro este mensaje (ya me moví en Update)
         if (IsOwner) return;
-
-        // Los demás clientes mueven la esfera de este jugador en sus pantallas
-        root.SetPositionAndRotation(pos, rot);
+        transform.SetPositionAndRotation(pos, rot);
         if (head != null) head.SetPositionAndRotation(hPos, hRot);
     }
 }
