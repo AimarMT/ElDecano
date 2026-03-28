@@ -8963,7 +8963,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b1f23173c064504fabce35e04671518, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapScene: {fileID: 102900000, guid: 0afaafc1f51c4774892824063eb0c1d7, type: 3}
+  mapSceneName: MapaPillaPilla
   mando: {fileID: 842452161}
   hostCollider: {fileID: 204456367}
   clientCollider: {fileID: 406174618}

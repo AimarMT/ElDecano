@@ -8,7 +8,7 @@ public class MenuFlowManager : MonoBehaviour
     public static MenuFlowManager Instance { get; private set; }
 
     [Header("Escena del mapa")]
-    [SerializeField] private Object mapScene;
+    public string mapSceneName = "MapaPillaPilla"; // Escribe el nombre directamente
 
     [Header("Mando")]
     [SerializeField] private GameObject mando;
@@ -34,6 +34,10 @@ public class MenuFlowManager : MonoBehaviour
     void Start()
     {
         textoEspera.gameObject.SetActive(false);
+        NetworkManager.Singleton.OnClientConnectedCallback += (id) =>
+            Debug.Log($"[MenuFlowManager] Cliente conectado ID: {id}");
+        NetworkManager.Singleton.OnClientDisconnectCallback += (id) =>
+            Debug.Log($"[MenuFlowManager] Cliente desconectado ID: {id}");
     }
 
     void Update()
@@ -54,16 +58,15 @@ public class MenuFlowManager : MonoBehaviour
             }
         }
 
-        // El Host comprueba en cada frame si ya hay 2 jugadores conectados
         if (!escenaCargada && seleccionado &&
             NetworkManager.Singleton != null &&
             NetworkManager.Singleton.IsHost &&
             NetworkManager.Singleton.ConnectedClients.Count >= 2)
         {
             escenaCargada = true;
-            Debug.Log("[MenuFlowManager] 2 jugadores conectados, cargando escena...");
+            Debug.Log("[MenuFlowManager] Cargando escena: " + mapSceneName);
             NetworkManager.Singleton.SceneManager.LoadScene(
-                mapScene.name,
+                mapSceneName,
                 UnityEngine.SceneManagement.LoadSceneMode.Single);
         }
     }
