@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
+using TMPro;
 
 public class MenuFlowManager : MonoBehaviour
 {
@@ -17,7 +18,12 @@ public class MenuFlowManager : MonoBehaviour
     [SerializeField] private Collider clientCollider;
     [SerializeField] private Collider exitCollider;
 
+    [Header("UI")]
+    [SerializeField] private GameObject botonesGroup;
+    [SerializeField] private TextMeshProUGUI textoEspera;
+
     private bool seleccionado = false;
+    private bool escenaCargada = false;
 
     void Awake()
     {
@@ -25,52 +31,61 @@ public class MenuFlowManager : MonoBehaviour
         else { Destroy(gameObject); return; }
     }
 
+    void Start()
+    {
+        textoEspera.gameObject.SetActive(false);
+    }
+
     void Update()
     {
-        if (seleccionado) return;
-        if (mando == null) return;
-
-        if (hostCollider != null && hostCollider.bounds.Contains(mando.transform.position))
+        if (!seleccionado && mando != null)
         {
-            Debug.Log("[MenuFlowManager] HOST seleccionado");
-            seleccionado = true;
-            NetworkManager.Singleton.StartHost();
-            SceneManager.LoadScene(mapScene.name);
-        }
-        else if (clientCollider != null && clientCollider.bounds.Contains(mando.transform.position))
-        {
-            Debug.Log("[MenuFlowManager] CLIENT seleccionado");
-            seleccionado = true;
-            NetworkManager.Singleton.StartClient();
-            SceneManager.LoadScene(mapScene.name);
-        }
-        else if (exitCollider != null && exitCollider.bounds.Contains(mando.transform.position))
-        {
-            Debug.Log("[MenuFlowManager] EXIT seleccionado");
-            seleccionado = true;
-            Application.Quit();
+            if (hostCollider != null && hostCollider.bounds.Contains(mando.transform.position))
+                SeleccionarHost();
+            else if (clientCollider != null && clientCollider.bounds.Contains(mando.transform.position))
+                SeleccionarClient();
+            else if (exitCollider != null && exitCollider.bounds.Contains(mando.transform.position))
+            {
+                seleccionado = true;
+                Application.Quit();
 #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
+                UnityEditor.EditorApplication.isPlaying = false;
 #endif
+            }
+        }
+
+        // El Host comprueba en cada frame si ya hay 2 jugadores conectados
+        if (!escenaCargada && seleccionado &&
+            NetworkManager.Singleton != null &&
+            NetworkManager.Singleton.IsHost &&
+            NetworkManager.Singleton.ConnectedClients.Count >= 2)
+        {
+            escenaCargada = true;
+            Debug.Log("[MenuFlowManager] 2 jugadores conectados, cargando escena...");
+            NetworkManager.Singleton.SceneManager.LoadScene(
+                mapScene.name,
+                UnityEngine.SceneManagement.LoadSceneMode.Single);
         }
     }
 
-    // Estos métodos los mantengo por si los botones UI siguen conectados
-    public void OnHostPressed()
+    private void SeleccionarHost()
     {
-        if (seleccionado) return;
         seleccionado = true;
-        Debug.Log("[MenuFlowManager] HOST seleccionado");
+        botonesGroup.SetActive(false);
+        textoEspera.gameObject.SetActive(true);
+        textoEspera.text = "Has escogido HOST\nEsperando al cliente...";
         NetworkManager.Singleton.StartHost();
-        SceneManager.LoadScene(mapScene.name);
     }
 
-    public void OnClientPressed()
+    private void SeleccionarClient()
     {
-        if (seleccionado) return;
         seleccionado = true;
-        Debug.Log("[MenuFlowManager] CLIENT seleccionado");
+        botonesGroup.SetActive(false);
+        textoEspera.gameObject.SetActive(true);
+        textoEspera.text = "Has escogido CLIENT\nEsperando al host...";
         NetworkManager.Singleton.StartClient();
-        SceneManager.LoadScene(mapScene.name);
     }
+
+    public void OnHostPressed() { if (!seleccionado) SeleccionarHost(); }
+    public void OnClientPressed() { if (!seleccionado) SeleccionarClient(); }
 }
