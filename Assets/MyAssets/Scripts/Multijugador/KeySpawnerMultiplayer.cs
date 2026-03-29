@@ -15,6 +15,10 @@ public class KeySpawnerMultiplayer : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip spawnSound;
 
+    [Header("Test Mode")]
+    public bool testMode = false;
+    public Vector3 testStartPosition = new Vector3(-10f, 1f, 1f);
+
     private bool alreadySpawned = false;
 
     IEnumerator Start()
@@ -30,7 +34,8 @@ public class KeySpawnerMultiplayer : MonoBehaviour
     private void SpawnKeys()
     {
         if (alreadySpawned) return;
-        if (spawnPoints.Length < keyPrefabs.Length)
+
+        if (!testMode && spawnPoints.Length < keyPrefabs.Length)
         {
             Debug.LogError("No hay suficientes puntos de spawn.");
             return;
@@ -38,38 +43,57 @@ public class KeySpawnerMultiplayer : MonoBehaviour
 
         alreadySpawned = true;
 
-        List<Transform> availablePoints = new List<Transform>(spawnPoints);
-
-        foreach (GameObject keyPrefab in keyPrefabs)
+        if (testMode)
         {
-            int index = Random.Range(0, availablePoints.Count);
-            Transform chosenPoint = availablePoints[index];
-
-            GameObject keyInstance = Instantiate(keyPrefab, chosenPoint.position, chosenPoint.rotation);
-            NetworkObject netObj = keyInstance.GetComponent<NetworkObject>();
-            if (netObj == null)
+            for (int i = 0; i < keyPrefabs.Length; i++)
             {
-                Debug.LogError("El prefab de llave necesita un NetworkObject.");
-                Destroy(keyInstance);
-                continue;
+                Vector3 pos = testStartPosition + new Vector3(i, 0f, 0f);
+                GameObject keyInstance = Instantiate(keyPrefabs[i], pos, Quaternion.identity);
+                NetworkObject netObj = keyInstance.GetComponent<NetworkObject>();
+                if (netObj == null)
+                {
+                    Debug.LogError("El prefab de llave necesita un NetworkObject.");
+                    Destroy(keyInstance);
+                    continue;
+                }
+                netObj.Spawn(true);
             }
+        }
+        else
+        {
+            List<Transform> availablePoints = new List<Transform>(spawnPoints);
 
-            netObj.Spawn(true);
-
-            Rigidbody rb = keyInstance.GetComponent<Rigidbody>();
-            if (rb != null)
+            foreach (GameObject keyPrefab in keyPrefabs)
             {
-                rb.isKinematic = true;
-                rb.ResetInertiaTensor();
-                rb.isKinematic = false;
-            }
+                int index = Random.Range(0, availablePoints.Count);
+                Transform chosenPoint = availablePoints[index];
 
-            availablePoints.RemoveAt(index);
+                GameObject keyInstance = Instantiate(keyPrefab, chosenPoint.position, chosenPoint.rotation);
+                NetworkObject netObj = keyInstance.GetComponent<NetworkObject>();
+                if (netObj == null)
+                {
+                    Debug.LogError("El prefab de llave necesita un NetworkObject.");
+                    Destroy(keyInstance);
+                    continue;
+                }
+
+                netObj.Spawn(true);
+
+                Rigidbody rb = keyInstance.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.isKinematic = true;
+                    rb.ResetInertiaTensor();
+                    rb.isKinematic = false;
+                }
+
+                availablePoints.RemoveAt(index);
+            }
         }
 
         if (audioSource && spawnSound)
             audioSource.PlayOneShot(spawnSound);
 
-        Debug.Log("Llaves spawnadas correctamente (multiplayer).");
+        Debug.Log(testMode ? "Llaves spawnadas en modo TEST." : "Llaves spawnadas correctamente (multiplayer).");
     }
 }

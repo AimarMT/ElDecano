@@ -1,5 +1,6 @@
 ﻿using Unity.Netcode;
 using UnityEngine;
+using System.Collections;
 
 public class TagGame : NetworkBehaviour
 {
@@ -44,26 +45,21 @@ public class TagGame : NetworkBehaviour
         if (otroJugador == null) return;
         if (otroJugador.OwnerClientId == NetworkManager.Singleton.LocalClientId) return;
 
-        EliminarServerRpc(otroJugador.OwnerClientId);
+        EliminarRpc(otroJugador.OwnerClientId);
     }
 
-    [ServerRpc]
-    private void EliminarServerRpc(ulong clientId)
+    [Rpc(SendTo.Server)]
+    private void EliminarRpc(ulong clientId)
     {
-        DesactivarClientRpc(new ClientRpcParams
-        {
-            Send = new ClientRpcSendParams
-            {
-                TargetClientIds = new[] { clientId }
-            }
-        });
-
+        DesactivarRpc(clientId);
         StartCoroutine(DespawnDespuesDeDelay(clientId));
     }
 
-    [ClientRpc]
-    private void DesactivarClientRpc(ClientRpcParams rpcParams = default)
+    [Rpc(SendTo.SpecifiedInParams)]
+    private void DesactivarRpc(ulong clientId, RpcParams rpcParams = default)
     {
+        if (!IsOwner) return;
+
         if (miMovimiento != null)
             miMovimiento.enabled = false;
 
@@ -102,7 +98,7 @@ public class TagGame : NetworkBehaviour
         Debug.LogWarning("[Host] CanvasWin no encontrado");
     }
 
-    private System.Collections.IEnumerator DespawnDespuesDeDelay(ulong clientId)
+    private IEnumerator DespawnDespuesDeDelay(ulong clientId)
     {
         yield return new WaitForSeconds(0.1f);
 
@@ -126,7 +122,7 @@ public class TagGame : NetworkBehaviour
 
                 Debug.Log($"[Host] Clientes vivos: {clientesVivos}");
 
-                if (clientesVivos == 0)
+                if (clientesVivos == 0 && juegoIniciado)
                     MostrarVictoria();
 
                 yield break;

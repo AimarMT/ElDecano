@@ -2,12 +2,14 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 [RequireComponent(typeof(XRGrabInteractable))]
 public class ClientOnlyGrab : NetworkBehaviour
 {
     private XRGrabInteractable grabInteractable;
+    private NetworkTransform netTransform;
     private InteractionLayerMask originalLayers;
 
     public override void OnNetworkSpawn()
@@ -19,6 +21,7 @@ public class ClientOnlyGrab : NetworkBehaviour
     void Awake()
     {
         grabInteractable = GetComponent<XRGrabInteractable>();
+        netTransform = GetComponent<NetworkTransform>();
         originalLayers = grabInteractable.interactionLayers;
         grabInteractable.selectEntered.AddListener(OnGrab);
         grabInteractable.selectExited.AddListener(OnRelease);
@@ -33,6 +36,17 @@ public class ClientOnlyGrab : NetworkBehaviour
 
     private void OnGrab(SelectEnterEventArgs args)
     {
+        // Si es un socket, desactivar sincronización de red
+        if (args.interactorObject is UnityEngine.XR.Interaction.Toolkit.Interactors.XRSocketInteractor)
+        {
+            if (netTransform != null)
+                netTransform.enabled = false;
+
+            // Sincronizar posición final al servidor
+            SyncPositionRpc(transform.position, transform.rotation);
+            return;
+        }
+
         if (!IsClientOnly())
         {
             Debug.Log("El host no puede agarrar esta llave.");
@@ -40,6 +54,10 @@ public class ClientOnlyGrab : NetworkBehaviour
             StartCoroutine(ReenableNextFrame());
             return;
         }
+
+        // Reactivar sincronización al agarrar con mano
+        if (netTransform != null)
+            netTransform.enabled = true;
 
         if (!IsOwner)
         {

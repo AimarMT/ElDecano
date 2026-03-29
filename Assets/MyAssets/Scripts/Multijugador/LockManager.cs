@@ -17,8 +17,8 @@ public class LockManager : NetworkBehaviour
     [Header("Locks y Tags")]
     public LockEntry[] locks;
 
-    [Header("Puerta")]
-    public Animator doorAnimator;
+    [Header("Puertas")]
+    public Animator[] doorAnimators;
     [SerializeField] private string doorAnimationName = "Opening 1";
 
     private NetworkVariable<int> keysPlacedCount = new NetworkVariable<int>(0);
@@ -49,18 +49,15 @@ public class LockManager : NetworkBehaviour
         GameObject key = args.interactableObject.transform.gameObject;
         LockEntry entry = locks[lockIndex];
 
-        // Solo procesar en el cliente dueño de la llave
         NetworkObject keyNet = key.GetComponent<NetworkObject>();
         if (keyNet != null && !keyNet.IsOwner) return;
 
-        // Tag incorrecta → expulsar la llave del socket
         if (!key.CompareTag(entry.requiredTag))
         {
             StartCoroutine(ForceRelease(entry.socket));
             return;
         }
 
-        // Tag correcta → notificar al servidor
         entry.isPlaced = true;
         NotifyKeyPlacedRpc(lockIndex);
     }
@@ -83,7 +80,10 @@ public class LockManager : NetworkBehaviour
         if (newValue >= locks.Length && !doorOpened)
         {
             doorOpened = true;
-            doorAnimator.Play(doorAnimationName);
+            foreach (Animator door in doorAnimators)
+            {
+                door.Play(doorAnimationName);
+            }
         }
     }
 

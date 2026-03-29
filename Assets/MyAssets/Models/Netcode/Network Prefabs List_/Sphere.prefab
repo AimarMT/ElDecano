@@ -214,6 +214,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  cooldownInicio: 3
 --- !u!54 &-8965160216449875608
 Rigidbody:
   m_ObjectHideFlags: 0
