@@ -87,6 +87,21 @@ public class TagGame : NetworkBehaviour
         }
     }
 
+    private void MostrarVictoria()
+    {
+        Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (Canvas canvas in canvases)
+        {
+            if (canvas.gameObject.name == "CanvasWin")
+            {
+                canvas.gameObject.SetActive(true);
+                Debug.Log("[Host] CanvasWin activado");
+                return;
+            }
+        }
+        Debug.LogWarning("[Host] CanvasWin no encontrado");
+    }
+
     private System.Collections.IEnumerator DespawnDespuesDeDelay(ulong clientId)
     {
         yield return new WaitForSeconds(0.1f);
@@ -95,7 +110,25 @@ public class TagGame : NetworkBehaviour
         {
             if (networkObject.OwnerClientId == clientId && networkObject.IsPlayerObject)
             {
+                GameObject objAEliminar = networkObject.gameObject;
+
                 networkObject.Despawn(true);
+
+                if (objAEliminar != null)
+                    Destroy(objAEliminar);
+
+                yield return new WaitForSeconds(0.1f);
+
+                int clientesVivos = 0;
+                foreach (var no in FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
+                    if (no.IsPlayerObject && no.OwnerClientId != NetworkManager.Singleton.LocalClientId)
+                        clientesVivos++;
+
+                Debug.Log($"[Host] Clientes vivos: {clientesVivos}");
+
+                if (clientesVivos == 0)
+                    MostrarVictoria();
+
                 yield break;
             }
         }
