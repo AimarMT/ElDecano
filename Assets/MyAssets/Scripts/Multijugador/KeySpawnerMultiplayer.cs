@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
-public class KeySpawnerMultiplayer : NetworkBehaviour
+public class KeySpawnerMultiplayer : MonoBehaviour
 {
     [Header("Llaves (prefabs con NetworkObject)")]
     public GameObject[] keyPrefabs;
@@ -16,9 +17,12 @@ public class KeySpawnerMultiplayer : NetworkBehaviour
 
     private bool alreadySpawned = false;
 
-    public override void OnNetworkSpawn()
+    IEnumerator Start()
     {
-        if (!IsServer) return; // Solo servidor spawnea
+        while (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening)
+            yield return null;
+
+        if (!NetworkManager.Singleton.IsServer) yield break;
 
         SpawnKeys();
     }
@@ -50,7 +54,7 @@ public class KeySpawnerMultiplayer : NetworkBehaviour
                 continue;
             }
 
-            netObj.Spawn(true); // true = con ownership del servidor inicialmente
+            netObj.Spawn(true);
 
             Rigidbody rb = keyInstance.GetComponent<Rigidbody>();
             if (rb != null)
@@ -64,15 +68,8 @@ public class KeySpawnerMultiplayer : NetworkBehaviour
         }
 
         if (audioSource && spawnSound)
-            PlayAudioClientRpc();
+            audioSource.PlayOneShot(spawnSound);
 
         Debug.Log("Llaves spawnadas correctamente (multiplayer).");
-    }
-
-    [ClientRpc]
-    private void PlayAudioClientRpc()
-    {
-        if (audioSource && spawnSound)
-            audioSource.PlayOneShot(spawnSound);
     }
 }

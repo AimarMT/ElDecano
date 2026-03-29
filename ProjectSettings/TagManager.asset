@@ -16,6 +16,10 @@ TagManager:
   - iba
   - a
   - decir
+  - rojo
+  - verde
+  - negro
+  - azul
   layers:
   - Default
   - TransparentFX
