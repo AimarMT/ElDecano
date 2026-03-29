@@ -3,21 +3,16 @@ using UnityEngine;
 
 public class TagGame : NetworkBehaviour
 {
-    private GameObject gameOverPanel;
     private MonoBehaviour miMovimiento;
 
     [Header("Configuración")]
-    public float cooldownInicio = 3f; 
+    public float cooldownInicio = 3f;
     private float tiempoInicio;
     private bool juegoIniciado = false;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        gameOverPanel = GameObject.Find("GameOverPanel");
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(false);
 
         if (IsOwner)
         {
@@ -43,7 +38,7 @@ public class TagGame : NetworkBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!IsHost) return;
-        if (!juegoIniciado) return; 
+        if (!juegoIniciado) return;
 
         TagGame otroJugador = other.GetComponentInParent<TagGame>();
         if (otroJugador == null) return;
@@ -76,17 +71,35 @@ public class TagGame : NetworkBehaviour
             if (mb.GetType().Name == "XRDeviceSimulator")
                 mb.enabled = false;
 
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(true);
+        MostrarGameOver();
+    }
 
-        Debug.Log("Has sido eliminado.");
+    private void MostrarGameOver()
+    {
+        Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (Canvas canvas in canvases)
+        {
+            if (canvas.gameObject.name == "CanvasGameOver")
+            {
+                canvas.gameObject.SetActive(true);
+                return;
+            }
+        }
     }
 
     private System.Collections.IEnumerator DespawnDespuesDeDelay(ulong clientId)
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
 
-        if (NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var client))
-            client.PlayerObject.Despawn(true);
+        foreach (var networkObject in FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
+        {
+            if (networkObject.OwnerClientId == clientId && networkObject.IsPlayerObject)
+            {
+                networkObject.Despawn(true);
+                yield break;
+            }
+        }
+
+        Debug.LogWarning($"[Servidor] No se encontró el objeto del cliente {clientId}");
     }
 }
