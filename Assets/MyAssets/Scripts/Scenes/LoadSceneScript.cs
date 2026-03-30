@@ -13,7 +13,7 @@ public class LoadSceneScript : MonoBehaviour
      public void CargarMainMenu()
     {
         
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("MenuInicial");
         Debug.Log("Cargando MainMenu");
     }
 
