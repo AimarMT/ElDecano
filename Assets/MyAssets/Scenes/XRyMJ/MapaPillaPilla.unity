@@ -144061,7 +144061,15 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 235629907350278069, guid: cd0b5ba744438474e9677c020dbc654b, type: 3}
     - target: {fileID: 918495949709181976, guid: c9a5b731a4eb165498019cac5c14a8a2, type: 3}
+      propertyPath: prefabHost
+      value: 
+      objectReference: {fileID: 235629907350278069, guid: cd0b5ba744438474e9677c020dbc654b, type: 3}
+    - target: {fileID: 918495949709181976, guid: c9a5b731a4eb165498019cac5c14a8a2, type: 3}
       propertyPath: clientPrefab
+      value: 
+      objectReference: {fileID: 235629907350278069, guid: 8d7a47397652b4b47becc4e7427f7257, type: 3}
+    - target: {fileID: 918495949709181976, guid: c9a5b731a4eb165498019cac5c14a8a2, type: 3}
+      propertyPath: prefabClient
       value: 
       objectReference: {fileID: 235629907350278069, guid: 8d7a47397652b4b47becc4e7427f7257, type: 3}
     - target: {fileID: 918495949709181976, guid: c9a5b731a4eb165498019cac5c14a8a2, type: 3}
