@@ -1048,7 +1048,7 @@ Transform:
   m_GameObject: {fileID: 564487579}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.45, y: 0, z: 39.44}
+  m_LocalPosition: {x: -8.908, y: 0, z: 40.963}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1132,6 +1132,7 @@ GameObject:
   - component: {fileID: 6678509203219744351}
   - component: {fileID: 4602308929700971777}
   - component: {fileID: 6678509203219744352}
+  - component: {fileID: 6678509203219744353}
   m_Layer: 0
   m_Name: Right Controller
   m_TagString: Untagged
@@ -1689,7 +1690,6 @@ GameObject:
   - component: {fileID: 5967689311385286503}
   - component: {fileID: 5967689311385286502}
   - component: {fileID: 5967689311385286499}
-  - component: {fileID: 5967689311385286507}
   m_Layer: 0
   m_Name: Left Controller
   m_TagString: Untagged
@@ -7728,24 +7728,6 @@ MonoBehaviour:
   m_StartingGroupMembers:
   - {fileID: 0}
   m_StartingInteractionOverridesMap: []
---- !u!114 &5967689311385286507
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1279783151}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc7c830b06c098f4dbe14c05401b7a4c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gazeOrigin: {fileID: 689770642}
-  maxGrabDistance: 5
-  handToTrack: 1
-  fistThreshold: 0.04
-  interactionManager: {fileID: 1357078773}
-  handPalmTransform: {fileID: 1279783152}
 --- !u!1 &6038107471570670788
 GameObject:
   m_ObjectHideFlags: 0
@@ -8246,6 +8228,27 @@ MonoBehaviour:
     m_InputActionReference: {fileID: -8222252007134549311, guid: c348712bda248c246b8c49b3db54643f, type: 3}
     m_ObjectReferenceObject: {fileID: 0}
   m_AmplitudeMultiplier: 1
+--- !u!114 &6678509203219744353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 600190992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc7c830b06c098f4dbe14c05401b7a4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gazeOrigin: {fileID: 689770642}
+  maxGrabDistance: 5
+  grabLayer:
+    serializedVersion: 2
+    m_Bits: 1
+  handToTrack: 2
+  fistThreshold: 0.04
+  interactionManager: {fileID: 1357078773}
+  handInteractorObject: {fileID: 600190992}
 --- !u!1 &6747261229531321727
 GameObject:
   m_ObjectHideFlags: 0

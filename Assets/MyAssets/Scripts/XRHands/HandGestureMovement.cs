@@ -15,10 +15,10 @@ public class HandGestureMovement : MonoBehaviour
             _handSubsystem = GetHandSubsystem();
         }
 
-        if (_handSubsystem != null && _handSubsystem.rightHand.isTracked)
+        if (_handSubsystem != null && _handSubsystem.leftHand.isTracked)
         {
             // 2. Comprobar si el puño está cerrado
-            if (IsFist(_handSubsystem.rightHand))
+            if (IsFist(_handSubsystem.leftHand))
             {
                 MoveForward();
             }

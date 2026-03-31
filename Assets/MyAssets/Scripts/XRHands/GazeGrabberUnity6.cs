@@ -1,98 +1,101 @@
 using UnityEngine;
-using UnityEngine.XR.Hands; // Necesario para Hand Tracking nativo
+using UnityEngine.XR.Hands;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using System.Collections.Generic;
 
 public class GazeHandGrabberUnity6 : MonoBehaviour
 {
     [Header("Configuración de Mirada (Gaze)")]
-    [Tooltip("Asigna la 'Main Camera' de tu XR Rig.")]
-    public Transform gazeOrigin; 
+    public Transform gazeOrigin;
     public float maxGrabDistance = 5.0f;
+    public LayerMask grabLayer;
 
     [Header("Detección de Puño (Hand Tracking)")]
-    public Handedness handToTrack = Handedness.Left; // ¿Mano izquierda o derecha?
-    [Range(0.01f, 0.1f)] public float fistThreshold = 0.04f; // Sensibilidad del cierre
+    public Handedness handToTrack = Handedness.Right;
+    [Range(0.01f, 0.1f)] public float fistThreshold = 0.08f;
 
     [Header("Referencias XRI (Unity 6)")]
-    [Tooltip("Asigna el 'XR Interaction Manager' de tu escena.")]
     public XRInteractionManager interactionManager;
-    
-    // NUEVO: No necesitamos arrastrar un Direct Interactor. 
-    // Usaremos este transform como la "palma" donde se pegará el objeto.
-    [Tooltip("Asigna el propio transform del 'Left Controller' aquí.")]
-    public Transform handPalmTransform; 
 
-    private XRGrabInteractable targetObject;
-    private bool isGazing = false;
-    private XRHandSubsystem handSubsystem;
-    private bool grabbingProcessStarted = false;
+    [Tooltip("Arrastra aquí el objeto que tiene el Interactor (ej. Right Hand Near-Far Interactor)")]
+    public GameObject handInteractorObject;
+
+    private IXRSelectInteractor _interactor; // Interfaz genérica para el agarre
+    private XRHandSubsystem _handSubsystem;
+    private XRGrabInteractable _targetObject;
+    private bool _isGazing = false;
+    private bool _isGrabbing = false;
+
+    void Awake()
+    {
+        if (handInteractorObject != null)
+        {
+            // Buscamos cualquier componente que implemente la interfaz de selección
+            _interactor = handInteractorObject.GetComponent<IXRSelectInteractor>();
+        }
+    }
 
     void Update()
     {
-        // Validaciones de seguridad para Unity 6
-        if (gazeOrigin == null || interactionManager == null || handPalmTransform == null) return;
+        // Validaciones
+        if (gazeOrigin == null || interactionManager == null || _interactor == null) return;
 
-        CheckGaze();
-
-        // Lógica de Gesto: Si el puño está cerrado Y estamos mirando algo válido
-        if (IsFistClosed() && isGazing && targetObject != null && !grabbingProcessStarted)
+        if (_handSubsystem == null || !_handSubsystem.running)
         {
-            TryGrab();
+            _handSubsystem = GetHandSubsystem();
         }
-        else if (!IsFistClosed() && grabbingProcessStarted)
+
+        if (!_isGrabbing)
         {
-            // Resetear estado si abrimos la mano
-            grabbingProcessStarted = false;
+            CheckGaze();
+        }
+
+        if (_handSubsystem != null)
+        {
+            bool fistClosed = IsFistClosed();
+
+            if (fistClosed && _isGazing && _targetObject != null && !_isGrabbing)
+            {
+                TryGrab();
+            }
+            else if (!fistClosed && _isGrabbing)
+            {
+                TryRelease();
+            }
         }
     }
 
     void CheckGaze()
     {
         RaycastHit hit;
-        // Usamos la posición GLOBAL de la cámara (gazeOrigin)
-        if (Physics.Raycast(gazeOrigin.position, gazeOrigin.forward, out hit, maxGrabDistance))
+        if (Physics.Raycast(gazeOrigin.position, gazeOrigin.forward, out hit, maxGrabDistance, grabLayer))
         {
             if (hit.collider.TryGetComponent<XRGrabInteractable>(out var interactable))
             {
-                targetObject = interactable;
-                isGazing = true;
-                Debug.DrawRay(gazeOrigin.position, gazeOrigin.forward * hit.distance, Color.green);
+                _targetObject = interactable;
+                _isGazing = true;
                 return;
             }
         }
-        targetObject = null;
-        isGazing = false;
-        Debug.DrawRay(gazeOrigin.position, gazeOrigin.forward * maxGrabDistance, Color.red);
+        _targetObject = null;
+        _isGazing = false;
     }
 
     bool IsFistClosed()
     {
-        // Buscamos el sistema de manos nativo si no lo tenemos
-        if (handSubsystem == null)
-        {
-            var subsystems = new System.Collections.Generic.List<XRHandSubsystem>();
-            SubsystemManager.GetSubsystems(subsystems);
-            if (subsystems.Count > 0) handSubsystem = subsystems[0];
-        }
+        var hand = (handToTrack == Handedness.Right) ? _handSubsystem.rightHand : _handSubsystem.leftHand;
 
-        if (handSubsystem != null)
+        if (hand.isTracked)
         {
-            var hand = handToTrack == Handedness.Left ? handSubsystem.leftHand : handSubsystem.rightHand;
-            
-            if (hand.isTracked)
+            var middleTip = hand.GetJoint(XRHandJointID.MiddleTip);
+            var wrist = hand.GetJoint(XRHandJointID.Wrist);
+
+            if (middleTip.TryGetPose(out Pose tipPose) && wrist.TryGetPose(out Pose wristPose))
             {
-                // Obtenemos la posición de la punta del índice y la palma
-                var indexTip = hand.GetJoint(XRHandJointID.IndexTip);
-                var palm = hand.GetJoint(XRHandJointID.Palm);
-
-                if (indexTip.TryGetPose(out Pose indexPose) && palm.TryGetPose(out Pose palmPose))
-                {
-                    // Si el índice está muy cerca de la palma, consideramos que es un puño
-                    float distance = Vector3.Distance(indexPose.position, palmPose.position);
-                    return distance < fistThreshold;
-                }
+                float distance = Vector3.Distance(tipPose.position, wristPose.position);
+                return distance < fistThreshold;
             }
         }
         return false;
@@ -100,30 +103,27 @@ public class GazeHandGrabberUnity6 : MonoBehaviour
 
     void TryGrab()
     {
-        grabbingProcessStarted = true;
+        if (_targetObject == null) return;
 
-        // Validamos que el objeto no esté seleccionado por otro interactor
-        if (targetObject.interactorsSelecting.Count == 0)
+        // Forzamos el inicio de la selección
+        interactionManager.SelectEnter(_interactor, (IXRSelectInteractable)_targetObject);
+        _isGrabbing = true;
+    }
+
+    void TryRelease()
+    {
+        if (_isGrabbing)
         {
-            // NUEVO: En Unity 6, si no hay interactor físico, forzamos al Interaction Manager 
-            // a 'pegar' el interactable a un interactor lógico o a su transform local.
-            // Para un agarre a distancia 'mágico', simplemente moveremos el objeto
-            // y luego activaremos la selección.
-            
-            // 1. Desactivamos físicas temporalmente
-            if (targetObject.TryGetComponent<Rigidbody>(out var rb))
-            {
-                rb.isKinematic = true;
-                rb.useGravity = false;
-            }
-
-            // 2. Movemos el objeto a la palma de la mano de forma instantánea
-            targetObject.transform.position = handPalmTransform.position;
-            targetObject.transform.rotation = handPalmTransform.rotation;
-
-            // 3. Forzamos al Interaction Manager a iniciar la interacción manual
-            // Como no tenemos Direct Interactor, el sistema usará un interactor genérico del Manager
-            interactionManager.SelectEnter((IXRSelectInteractor)this, (IXRSelectInteractable)targetObject);
+            interactionManager.SelectExit(_interactor, (IXRSelectInteractable)_targetObject);
+            _isGrabbing = false;
+            _targetObject = null;
         }
+    }
+
+    private XRHandSubsystem GetHandSubsystem()
+    {
+        List<XRHandSubsystem> subsystems = new List<XRHandSubsystem>();
+        SubsystemManager.GetSubsystems(subsystems);
+        return subsystems.Count > 0 ? subsystems[0] : null;
     }
 }

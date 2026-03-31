@@ -5,28 +5,28 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XRyMJ/MenuInicial.unity
     guid: c18a89bf2495408449243f7fee2ecd3e
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XRyMJ/MapaPillaPilla.unity
     guid: 0afaafc1f51c4774892824063eb0c1d7
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/XRyMJ/EscenaPruebaManos.unity
     guid: 94ff456e7f5fbfc419ce8523f5ee7639
   - enabled: 0
     path: Assets/MyAssets/Scenes/PruebasMultijugador.unity
     guid: da5e9a15198acb24fb508640e50a3159
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XRyMJ/GameOverMenuMultiplayerHost.unity
     guid: ffa05266d34cfad468ae5ed25a495572
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XRyMJ/GameOverMenuMultiplayerCliente.unity
     guid: 160ac6bca1acfbe468457d330dcd02aa
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XRyMJ/WinMenuMultiplayerCliente.unity
     guid: 3668dad6d23ed6a47b0795e063234206
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XRyMJ/WinMenuMultiplayerHost.unity
     guid: 23403766dc21dae4786b949de55213e1
   m_configObjects:
