@@ -28,10 +28,11 @@ public class NetworkGrabHandler : NetworkBehaviour
 
     private void OnGrab(SelectEnterEventArgs args)
     {
-        // Si no somos el dueño del objeto, le pedimos al servidor que nos dé la propiedad
+        // Esto te dirá en la consola QUIÉN está intentando agarrar
+        Debug.Log($"¡Objeto agarrado por: {args.interactorObject.transform.name}!");
+    
         if (IsClient && !IsOwner)
         {
-            Debug.Log($"[Red] Intentando tomar posesión de: {gameObject.name}");
             RequestOwnershipRpc();
         }
     }

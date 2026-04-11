@@ -29,6 +29,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/MyAssets/Scenes/XRyMJ/WinMenuMultiplayerHost.unity
     guid: 23403766dc21dae4786b949de55213e1
+  - enabled: 0
+    path: Assets/Samples/XR Interaction Toolkit/3.0.9/Hands Interaction Demo/HandsDemoScene.unity
+    guid: 3ff35cecbcc52cc42945cf531638a60a
   m_configObjects:
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 759f73e9739eee649973922d6ee468e4, type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 93f5f9affa406f5448a2d18f476d919a, type: 2}
