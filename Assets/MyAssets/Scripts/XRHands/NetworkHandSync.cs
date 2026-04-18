@@ -1,60 +1,67 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 
 public class NetworkHandSync : NetworkBehaviour
 {
-    [Header("Referencias de Red")]
-    public Transform networkLeftHand;
-    public Transform networkRightHand;
+    [Header("Referencias Lado Izquierdo")]
+    public GameObject leftHand;
+    public GameObject leftController;
 
-    // Referencias locales (las buscaremos al empezar)
-    private Transform xrLeftHand;
-    private Transform xrRightHand;
+    [Header("Referencias Lado Derecho")]
+    public GameObject rightHand;
+    public GameObject rightController;
 
     public override void OnNetworkSpawn()
     {
+        // Configuración de cámara y controles según quién sea el dueño
         if (IsOwner)
         {
-            // 1. Buscamos el XR Origin para seguirlo
-            GameObject xrOrigin = GameObject.Find("XR Origin (XR Rig)");
-            xrLeftHand = xrOrigin.transform.Find("Camera Offset/Left Controller");
-            xrRightHand = xrOrigin.transform.Find("Camera Offset/Right Controller");
+            GetComponentInChildren<Camera>().enabled = true;
+            var al = GetComponentInChildren<AudioListener>();
+            if (al != null) al.enabled = true;
+        }
+        else
+        {
+            GetComponentInChildren<Camera>().enabled = false;
+            var al = GetComponentInChildren<AudioListener>();
+            if (al != null) al.enabled = false;
 
-            // 2. DESACTIVAR las manos del suelo para MÍ (pero no para otros)
-            // Buscamos los SkinnedMeshRenderer en los hijos de red y los apagamos
-            foreach (var renderer in GetComponentsInChildren<SkinnedMeshRenderer>())
-            {
-                renderer.enabled = false;
-            }
+            var poseDriver = GetComponentInChildren<TrackedPoseDriver>();
+            if (poseDriver != null) poseDriver.enabled = false;
         }
     }
 
     void Update()
     {
-        // Muy importante: solo el "Owner" (tú) envía su posición a los demás
+        // Si soy el dueño del avatar, le digo al servidor qué tengo activo
         if (IsOwner)
         {
-            // Hacer que el avatar de red siga la posición de la cámara (tu cabeza)
-            // Buscamos la cámara del XR Origin
-            Transform cameraTransform = Camera.main.transform;
+            SyncVisualsServerRpc(
+                leftHand.activeSelf,
+                leftController.activeSelf,
+                rightHand.activeSelf,
+                rightController.activeSelf
+            );
+        }
+    }
 
-            transform.position = cameraTransform.position;
+    [ServerRpc]
+    private void SyncVisualsServerRpc(bool lh, bool lc, bool rh, bool rc)
+    {
+        SyncVisualsClientRpc(lh, lc, rh, rc);
+    }
 
-            // Opcional: Que el cuerpo gire hacia donde miras (solo en el eje Y)
-            Vector3 newRotation = cameraTransform.eulerAngles;
-            transform.rotation = Quaternion.Euler(0, newRotation.y, 0);
-
-            if (xrLeftHand != null)
-            {
-                networkLeftHand.position = xrLeftHand.position;
-                networkLeftHand.rotation = xrLeftHand.rotation;
-            }
-
-            if (xrRightHand != null)
-            {
-                networkRightHand.position = xrRightHand.position;
-                networkRightHand.rotation = xrRightHand.rotation;
-            }
+    [ClientRpc]
+    private void SyncVisualsClientRpc(bool lh, bool lc, bool rh, bool rc)
+    {
+        // Los otros jugadores ven lo mismo que yo
+        if (!IsOwner)
+        {
+            leftHand.SetActive(lh);
+            leftController.SetActive(lc);
+            rightHand.SetActive(rh);
+            rightController.SetActive(rc);
         }
     }
 }
