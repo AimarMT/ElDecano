@@ -8,7 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/MyAssets/Scenes/XRyMJ/MenuInicial.unity
     guid: c18a89bf2495408449243f7fee2ecd3e
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/XRyMJ/MapaPillaPilla.unity
     guid: 0afaafc1f51c4774892824063eb0c1d7
   - enabled: 0

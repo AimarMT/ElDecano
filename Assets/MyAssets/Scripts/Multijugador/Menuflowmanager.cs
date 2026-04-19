@@ -2,13 +2,14 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
 using TMPro;
+using Unity.Netcode.Transports.UTP;
 
 public class MenuFlowManager : MonoBehaviour
 {
     public static MenuFlowManager Instance { get; private set; }
 
     [Header("Escena del mapa")]
-    public string mapSceneName = "MapaPillaPilla"; // Escribe el nombre directamente
+    public string mapSceneName = "MapaPillaPilla";
 
     [Header("Mando")]
     [SerializeField] private GameObject mando;
@@ -21,6 +22,10 @@ public class MenuFlowManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private GameObject botonesGroup;
     [SerializeField] private TextMeshProUGUI textoEspera;
+
+    [Header("Red")]
+    [SerializeField] private string hostIP = "127.0.0.1";
+    [SerializeField] private ushort port = 7777;
 
     private bool seleccionado = false;
     private bool escenaCargada = false;
@@ -67,7 +72,7 @@ public class MenuFlowManager : MonoBehaviour
             Debug.Log("[MenuFlowManager] Cargando escena: " + mapSceneName);
             NetworkManager.Singleton.SceneManager.LoadScene(
                 mapSceneName,
-                UnityEngine.SceneManagement.LoadSceneMode.Single);
+                LoadSceneMode.Single);
         }
     }
 
@@ -77,6 +82,11 @@ public class MenuFlowManager : MonoBehaviour
         botonesGroup.SetActive(false);
         textoEspera.gameObject.SetActive(true);
         textoEspera.text = "Has escogido HOST\nEsperando al cliente...";
+
+        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+        transport.SetConnectionData(hostIP, port);
+        Debug.Log($"[MenuFlowManager] Host iniciado en IP: {hostIP} Puerto: {port}");
+
         NetworkManager.Singleton.StartHost();
     }
 
@@ -86,6 +96,11 @@ public class MenuFlowManager : MonoBehaviour
         botonesGroup.SetActive(false);
         textoEspera.gameObject.SetActive(true);
         textoEspera.text = "Has escogido CLIENT\nEsperando al host...";
+
+        var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+        transport.SetConnectionData(hostIP, port);
+        Debug.Log($"[MenuFlowManager] Conectando a IP: {hostIP} Puerto: {port}");
+
         NetworkManager.Singleton.StartClient();
     }
 
