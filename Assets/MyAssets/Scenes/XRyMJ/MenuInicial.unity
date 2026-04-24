@@ -127,9 +127,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 474030478}
     m_Modifications:
+    - target: {fileID: 2441017655190339836, guid: dfe5a98a0191f614cb343d1bf890a9b2, type: 3}
+      propertyPath: m_StartingGroupMembers.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5172995084022943268, guid: dfe5a98a0191f614cb343d1bf890a9b2, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6269551593116350674, guid: dfe5a98a0191f614cb343d1bf890a9b2, type: 3}
       propertyPath: m_Name
       value: XROrigin_VR
+      objectReference: {fileID: 0}
+    - target: {fileID: 6269551593116350674, guid: dfe5a98a0191f614cb343d1bf890a9b2, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6424818511995151469, guid: dfe5a98a0191f614cb343d1bf890a9b2, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7810487951694922222, guid: dfe5a98a0191f614cb343d1bf890a9b2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -171,6 +187,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8977051311570485327, guid: dfe5a98a0191f614cb343d1bf890a9b2, type: 3}
+      propertyPath: m_BodyPositionEvaluatorObject
+      value: 
+      objectReference: {fileID: 11400000, guid: ab00ad250fa3a6f408837417fbefb27d, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
