@@ -5,13 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XRyMJ/MenuInicial.unity
     guid: c18a89bf2495408449243f7fee2ecd3e
   - enabled: 0
     path: Assets/MyAssets/Scenes/XRyMJ/MapaPillaPilla.unity
     guid: 0afaafc1f51c4774892824063eb0c1d7
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/XRyMJ/EscenaPruebaManos.unity
     guid: 94ff456e7f5fbfc419ce8523f5ee7639
   - enabled: 0
