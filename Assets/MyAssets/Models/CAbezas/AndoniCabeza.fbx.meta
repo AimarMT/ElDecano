@@ -3,7 +3,22 @@ guid: 7cd61649a264f5c4995878e6b6731f1b
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material
+    second: {fileID: 2100000, guid: 8372770c0fc99ad44b34be021cdc6548, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Material_diffuse
+    second: {fileID: 2800000, guid: 044ad7f76338d4140bbb18d094f8e6b4, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: Material_shininess
+    second: {fileID: 2800000, guid: b514c46179857f84396bdffa6f46f793, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0
