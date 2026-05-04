@@ -25,11 +25,27 @@ namespace SojaExiles
 
         private bool isMoving = false;
 
-        // 👇 Getter público
         public bool IsOpen => isOpen.Value;
 
         // =========================
-        // 🎮 VR INTERACTION
+        // SINCRONIZACIÓN INICIAL
+        // =========================
+        public override void OnNetworkSpawn()
+        {
+            ApplyVisualState(isOpen.Value);
+        }
+
+        void ApplyVisualState(bool open)
+        {
+            if (animator)
+            {
+                // Salta directamente al estado final (sin animar)
+                animator.Play(open ? openAnim : closeAnim, 0, 1f);
+            }
+        }
+
+        // =========================
+        //  XR INTERACTION
         // =========================
         public void OnActivate(ActivateEventArgs args)
         {
@@ -37,18 +53,18 @@ namespace SojaExiles
         }
 
         // =========================
-        // 🔄 TOGGLE GENERAL
+        //  TOGGLE GENERAL
         // =========================
         public void ToggleDoor()
         {
             if (IsServer)
                 ApplyToggle();
             else
-                ToggleDoorServerRpc();
+                ToggleDoorRpc();
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        void ToggleDoorServerRpc()
+        [Rpc(SendTo.Server)]
+        void ToggleDoorRpc(RpcParams rpcParams = default)
         {
             ApplyToggle();
         }
@@ -60,18 +76,18 @@ namespace SojaExiles
         }
 
         // =========================
-        // 🤖 NPC / EXTERNAL CONTROL
+        //CONTROL EXTERNO (NPCs, etc.)
         // =========================
         public void OpenDoor()
         {
             if (IsServer)
                 ApplyOpen();
             else
-                OpenDoorServerRpc();
+                OpenDoorRpc();
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        void OpenDoorServerRpc()
+        [Rpc(SendTo.Server)]
+        void OpenDoorRpc(RpcParams rpcParams = default)
         {
             ApplyOpen();
         }
@@ -89,11 +105,11 @@ namespace SojaExiles
             if (IsServer)
                 ApplyClose();
             else
-                CloseDoorServerRpc();
+                CloseDoorRpc();
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        void CloseDoorServerRpc()
+        [Rpc(SendTo.Server)]
+        void CloseDoorRpc(RpcParams rpcParams = default)
         {
             ApplyClose();
         }
@@ -107,9 +123,9 @@ namespace SojaExiles
         }
 
         // =========================
-        //  SYNC VISUALS
+        // SINCRONIZACIÓN VISUAL
         // =========================
-        [ClientRpc]
+        [Rpc(SendTo.Everyone)]
         void PlayDoorClientRpc(bool openState)
         {
             if (openState)
