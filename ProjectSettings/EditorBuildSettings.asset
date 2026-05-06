@@ -5,64 +5,64 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/XRyMJ/MenuInicial.unity
     guid: c18a89bf2495408449243f7fee2ecd3e
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/XRyMJ/MapaPillaPilla.unity
     guid: 0afaafc1f51c4774892824063eb0c1d7
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XRyMJ/EscenaPruebaManos.unity
     guid: 94ff456e7f5fbfc419ce8523f5ee7639
   - enabled: 0
     path: Assets/MyAssets/Scenes/PruebasMultijugador.unity
     guid: da5e9a15198acb24fb508640e50a3159
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/XRyMJ/GameOverMenuMultiplayerHost.unity
     guid: ffa05266d34cfad468ae5ed25a495572
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/XRyMJ/GameOverMenuMultiplayerCliente.unity
     guid: 160ac6bca1acfbe468457d330dcd02aa
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/XRyMJ/WinMenuMultiplayerCliente.unity
     guid: 3668dad6d23ed6a47b0795e063234206
-  - enabled: 0
+  - enabled: 1
     path: Assets/MyAssets/Scenes/XRyMJ/WinMenuMultiplayerHost.unity
     guid: 23403766dc21dae4786b949de55213e1
   - enabled: 0
     path: Assets/Samples/XR Interaction Toolkit/3.0.9/Hands Interaction Demo/HandsDemoScene.unity
     guid: 3ff35cecbcc52cc42945cf531638a60a
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XR/MainMenu.unity
     guid: 3ddc5ea9d86e47541bd2a07bc128d5c7
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XR/DeadScene.unity
     guid: f08315b4c7fae7c459e026e34c41ad25
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XR/DeadSceneInes.unity
     guid: 8ef9d927cc7694c4a87194120c5c4103
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XR/GameOverMenu.unity
     guid: f2cb585bb57b0794ab2060a3ff8e61b0
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XR/HouseMap.unity
     guid: 8c097b8de46fd28489567c074bdcbecf
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XR/LoadingScene.unity
     guid: c6f0348bd63932242895a069590e4a46
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XR/PrimeraCinematica.unity
     guid: 00ccb03cb176b5a419dada525559ae0a
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XR/SegundaCinematica.unity
     guid: 7f9b380ad6c35f04ea96ab49c506dcba
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XR/UniversityMap.unity
     guid: de7d0c3127115df40ade13812c7e5139
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XR/UniversityModelScene.unity
     guid: 4df25eb4e55ebf14d94bd7854d36befe
-  - enabled: 1
+  - enabled: 0
     path: Assets/MyAssets/Scenes/XR/WinMenu.unity
     guid: 92607244be590e444b2bf46f435d33f6
   m_configObjects:
