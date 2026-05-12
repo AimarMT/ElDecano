@@ -45,12 +45,23 @@ namespace SojaExiles
         }
 
         // =========================
-        //  XR INTERACTION
+        //  XR INTERACTION — GRAB
         // =========================
-        public void OnActivate(ActivateEventArgs args)
+
+        // Llamado cuando el jugador agarra la puerta (botón Grab)
+        public void OnSelectEntered(SelectEnterEventArgs args)
         {
-            ToggleDoor();
+            OpenDoor();
         }
+
+        // Llamado cuando el jugador suelta la puerta
+        public void OnSelectExited(SelectExitEventArgs args)
+        {
+            CloseDoor();
+        }
+
+        // Compatibilidad con Activate por si se usa desde otro sitio
+        public void OnActivate(ActivateEventArgs args) { }
 
         // =========================
         //  TOGGLE GENERAL
@@ -76,7 +87,7 @@ namespace SojaExiles
         }
 
         // =========================
-        //CONTROL EXTERNO (NPCs, etc.)
+        // CONTROL EXTERNO (NPCs, etc.)
         // =========================
         public void OpenDoor()
         {
