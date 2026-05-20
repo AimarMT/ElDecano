@@ -153,7 +153,8 @@ MonoBehaviour:
   head: {fileID: 6728480716381133977}
   leftHand: {fileID: 7289853126918490710}
   rightHand: {fileID: 938094033036233442}
-  meshesToDisable: []
+  meshesToDisable:
+  - {fileID: 1391950988779614379}
   mapSceneName: MapaPillaPilla
 --- !u!1 &2698426841451220825
 GameObject:

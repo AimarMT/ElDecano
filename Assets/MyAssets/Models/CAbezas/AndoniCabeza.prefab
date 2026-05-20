@@ -202,10 +202,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  head: {fileID: 1830597405210121742}
+  head: {fileID: 4572784657823123381}
   leftHand: {fileID: 1830597405210121742}
   rightHand: {fileID: 2566725828038828054}
-  meshesToDisable: []
+  meshesToDisable:
+  - {fileID: 5334446552512265978}
   mapSceneName: MapaPillaPilla
 --- !u!114 &1121231824550523769
 MonoBehaviour:
