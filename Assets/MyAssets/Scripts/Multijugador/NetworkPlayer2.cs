@@ -17,12 +17,40 @@ public class NetworkPlayer2 : NetworkBehaviour
     public string mapSceneName = "MapaPillaPilla";
 
     private bool listo = false;
+    private XRRigReferences2 myXR; // Referencia LOCAL a nuestro propio rig
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
+        Debug.Log($"[NetworkPlayer2] OnNetworkSpawn — IsOwner:{IsOwner} OwnerClientId:{OwnerClientId} pos:{transform.position} NetworkObjectId:{NetworkObjectId}");
+
         if (IsOwner)
         {
+            // Buscamos TODOS los XRRigReferences2 de la escena y cogemos
+            // el que pertenece a este proceso (el que tiene la cámara activa)
+            XRRigReferences2[] rigs = FindObjectsByType<XRRigReferences2>(FindObjectsSortMode.None);
+            Debug.Log($"[NetworkPlayer2] Rigs encontrados en escena: {rigs.Length}");
+
+            foreach (var rig in rigs)
+            {
+                // El rig local es el que tiene la Main Camera activa
+                Camera cam = rig.head?.GetComponent<Camera>();
+                if (cam != null && cam.isActiveAndEnabled)
+                {
+                    myXR = rig;
+                    Debug.Log($"[NetworkPlayer2] Rig propio encontrado: {rig.gameObject.name}");
+                    break;
+                }
+            }
+
+            if (myXR == null)
+            {
+                // Fallback: cogemos el primero que haya
+                Debug.LogWarning("[NetworkPlayer2] No se encontró rig con cámara activa, usando el primero disponible.");
+                if (rigs.Length > 0) myXR = rigs[0];
+            }
+
             foreach (Renderer r in meshesToDisable)
                 if (r != null) r.enabled = false;
 
@@ -37,59 +65,66 @@ public class NetworkPlayer2 : NetworkBehaviour
         }
     }
 
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        if (IsOwner)
+            Debug.Log($"[NetworkPlayer2] OnNetworkDespawn — NetworkObjectId:{NetworkObjectId}");
+    }
+
     private IEnumerator MoverXRAlSpawn()
     {
         yield return null;
-        yield return null;
-        if (XRRigReferences2.Instance != null &&
-            XRRigReferences2.Instance.root != null)
+
+        if (myXR == null || myXR.root == null)
         {
-            XRRigReferences2.Instance.root.position = transform.position;
-            XRRigReferences2.Instance.root.rotation = transform.rotation;
-            Debug.Log($"[NetworkPlayer2] XR Origin movido a {transform.position}");
+            Debug.LogWarning("[NetworkPlayer2] myXR o root es null, no se puede mover al spawn.");
+            listo = true;
+            yield break;
         }
+
+        var cc = myXR.root.GetComponent<CharacterController>();
+        if (cc != null) cc.enabled = false;
+
+        myXR.root.position = transform.position;
+        myXR.root.rotation = transform.rotation;
+
+        yield return null; // Frame extra para que el CC registre la nueva posición
+
+        if (cc != null) cc.enabled = true;
+
+        Debug.Log($"[NetworkPlayer2] XR Origin movido a {transform.position}");
         listo = true;
     }
 
     void Update()
     {
         if (!listo) return;
-        if (!IsOwner || XRRigReferences2.Instance == null) return;
+        if (!IsOwner || myXR == null) return;
+        if (myXR.head == null) return;
 
-        var xr = XRRigReferences2.Instance;
-        if (xr.head == null) return;
-
-        // Mueve la esfera a la posición de la cabeza
-        transform.position = xr.head.position;
-        Vector3 camForward = xr.head.forward;
+        transform.position = myXR.head.position;
+        Vector3 camForward = myXR.head.forward;
         camForward.y = 0;
         if (camForward.sqrMagnitude > 0.01f)
             transform.rotation = Quaternion.LookRotation(camForward);
 
-        // Actualiza visualmente en local
         if (head != null)
-            head.SetPositionAndRotation(
-                xr.head.position,
-                xr.head.rotation);
-        if (leftHand != null && xr.leftHand != null)
-            leftHand.SetPositionAndRotation(
-                xr.leftHand.position,
-                xr.leftHand.rotation);
-        if (rightHand != null && xr.rightHand != null)
-            rightHand.SetPositionAndRotation(
-                xr.rightHand.position,
-                xr.rightHand.rotation);
+            head.SetPositionAndRotation(myXR.head.position, myXR.head.rotation);
+        if (leftHand != null && myXR.leftHand != null)
+            leftHand.SetPositionAndRotation(myXR.leftHand.position, myXR.leftHand.rotation);
+        if (rightHand != null && myXR.rightHand != null)
+            rightHand.SetPositionAndRotation(myXR.rightHand.position, myXR.rightHand.rotation);
 
-        // Sincroniza por red
         UpdatePositionServerRpc(
             transform.position,
             transform.rotation,
             head != null ? head.position : Vector3.zero,
             head != null ? head.rotation : Quaternion.identity,
-            xr.leftHand != null ? xr.leftHand.position : Vector3.zero,
-            xr.leftHand != null ? xr.leftHand.rotation : Quaternion.identity,
-            xr.rightHand != null ? xr.rightHand.position : Vector3.zero,
-            xr.rightHand != null ? xr.rightHand.rotation : Quaternion.identity
+            myXR.leftHand != null ? myXR.leftHand.position : Vector3.zero,
+            myXR.leftHand != null ? myXR.leftHand.rotation : Quaternion.identity,
+            myXR.rightHand != null ? myXR.rightHand.position : Vector3.zero,
+            myXR.rightHand != null ? myXR.rightHand.rotation : Quaternion.identity
         );
     }
 
@@ -101,18 +136,11 @@ public class NetworkPlayer2 : NetworkBehaviour
         Vector3 rhPos, Quaternion rhRot)
     {
         transform.SetPositionAndRotation(pos, rot);
-        if (head != null)
-            head.SetPositionAndRotation(hPos, hRot);
-        if (leftHand != null)
-            leftHand.SetPositionAndRotation(lhPos, lhRot);
-        if (rightHand != null)
-            rightHand.SetPositionAndRotation(rhPos, rhRot);
+        if (head != null) head.SetPositionAndRotation(hPos, hRot);
+        if (leftHand != null) leftHand.SetPositionAndRotation(lhPos, lhRot);
+        if (rightHand != null) rightHand.SetPositionAndRotation(rhPos, rhRot);
 
-        UpdatePositionClientRpc(
-            pos, rot,
-            hPos, hRot,
-            lhPos, lhRot,
-            rhPos, rhRot);
+        UpdatePositionClientRpc(pos, rot, hPos, hRot, lhPos, lhRot, rhPos, rhRot);
     }
 
     [ClientRpc]
@@ -124,11 +152,8 @@ public class NetworkPlayer2 : NetworkBehaviour
     {
         if (IsOwner) return;
         transform.SetPositionAndRotation(pos, rot);
-        if (head != null)
-            head.SetPositionAndRotation(hPos, hRot);
-        if (leftHand != null)
-            leftHand.SetPositionAndRotation(lhPos, lhRot);
-        if (rightHand != null)
-            rightHand.SetPositionAndRotation(rhPos, rhRot);
+        if (head != null) head.SetPositionAndRotation(hPos, hRot);
+        if (leftHand != null) leftHand.SetPositionAndRotation(lhPos, lhRot);
+        if (rightHand != null) rightHand.SetPositionAndRotation(rhPos, rhRot);
     }
 }

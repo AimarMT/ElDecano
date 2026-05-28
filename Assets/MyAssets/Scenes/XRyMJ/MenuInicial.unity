@@ -6155,6 +6155,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 474030478}
     m_Modifications:
     - target: {fileID: 6598815579406187026, guid: 18ddb545287c546e19cc77dc9fbb2189, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6598815579406187026, guid: 18ddb545287c546e19cc77dc9fbb2189, type: 3}
       propertyPath: m_CameraTransform
       value: 
       objectReference: {fileID: 0}
@@ -9306,7 +9310,7 @@ MonoBehaviour:
   m_MaxConnectAttempts: 60
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
-    Address: 127.0.0.1
+    Address: 192.168.1.135
     Port: 7777
     ServerListenAddress: 127.0.0.1
     ClientBindPort: 0
@@ -9390,7 +9394,7 @@ MonoBehaviour:
   exitCollider: {fileID: 0}
   botonesGroup: {fileID: 1756019084}
   textoEspera: {fileID: 230543754}
-  hostIP: 127.0.0.1
+  hostIP: 192.168.1.135
   port: 7777
 --- !u!114 &1995284452
 MonoBehaviour:

@@ -1,17 +1,13 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class XRRigReferences2 : MonoBehaviour
 {
-    public static XRRigReferences2 Instance;
-
-    public Transform root;         // El XR Origin
-    public Transform cameraOffset; // EL NUEVO: Arrastra aqu� el objeto "Camera Offset"
-    public Transform head;         // La Main Camera
+    // Ya NO usamos singleton estático porque en Multiplayer Play Mode
+    // host y cliente comparten el mismo proceso y se sobreescriben mutuamente.
+    // Cada NetworkPlayer2 busca su propio rig por tag en su OnNetworkSpawn.
+    public Transform root;
+    public Transform cameraOffset;
+    public Transform head;
     public Transform leftHand;
     public Transform rightHand;
-
-    private void Awake()
-    {
-        Instance = this;
-    }
 }
