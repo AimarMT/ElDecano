@@ -19,9 +19,13 @@ public class DebugScreen : MonoBehaviour
 
     void OnLog(string msg, string stack, LogType type)
     {
-        if (msg.Contains("NetworkPlayer2") || msg.Contains("SpawnManager") || msg.Contains("XRRig"))
+        if (msg.Contains("[NP2]") || msg.Contains("[HGM]") || msg.Contains("[SpawnManager]") ||
+            msg.Contains("[TagGame]") || msg.Contains("[Host]") || msg.Contains("[Servidor]") ||
+            msg.Contains("NetworkPlayer2") || msg.Contains("XRRig"))
         {
             log += "\n" + msg;
+            if (log.Length > 6000)
+                log = log.Substring(log.Length - 6000);
             if (texto != null) texto.text = log;
         }
     }

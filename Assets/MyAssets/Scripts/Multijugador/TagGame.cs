@@ -4,7 +4,7 @@ using System.Collections;
 
 public class TagGame : NetworkBehaviour
 {
-    private MonoBehaviour miMovimiento;
+    private HandGestureMovement miMovimiento;
 
     [Header("Configuración")]
     public float cooldownInicio = 3f;
@@ -17,11 +17,18 @@ public class TagGame : NetworkBehaviour
 
         if (IsOwner)
         {
-            GameObject move = GameObject.Find("Move");
-            if (move != null)
-                miMovimiento = move.GetComponent<MonoBehaviour>();
-            else
-                Debug.LogWarning("[TagGame] No se encontró el objeto Move");
+            XRRigReferences2[] rigs = FindObjectsByType<XRRigReferences2>(FindObjectsSortMode.None);
+            foreach (var rig in rigs)
+            {
+                Camera cam = rig.head?.GetComponent<Camera>();
+                if (cam != null && cam.isActiveAndEnabled)
+                {
+                    miMovimiento = rig.root?.GetComponent<HandGestureMovement>();
+                    break;
+                }
+            }
+            if (miMovimiento == null)
+                Debug.LogWarning("[TagGame] No se encontró HandGestureMovement en el rig local");
         }
 
         tiempoInicio = Time.time;
@@ -45,21 +52,21 @@ public class TagGame : NetworkBehaviour
         if (otroJugador == null) return;
         if (otroJugador.OwnerClientId == NetworkManager.Singleton.LocalClientId) return;
 
-        EliminarRpc(otroJugador.OwnerClientId);
+        // Call on otroJugador so the RPC runs in the context of the tagged player's object.
+        otroJugador.EliminarRpc();
     }
 
     [Rpc(SendTo.Server)]
-    private void EliminarRpc(ulong clientId)
+    private void EliminarRpc()
     {
-        DesactivarRpc(clientId);
-        StartCoroutine(DespawnDespuesDeDelay(clientId));
+        // 'this' is now the tagged player's TagGame — send to its owner.
+        DesactivarRpc(RpcTarget.Single(OwnerClientId, RpcTargetUse.Temp));
+        StartCoroutine(DespawnDespuesDeDelay(OwnerClientId));
     }
 
     [Rpc(SendTo.SpecifiedInParams)]
-    private void DesactivarRpc(ulong clientId, RpcParams rpcParams = default)
+    private void DesactivarRpc(RpcParams rpcParams = default)
     {
-        if (!IsOwner) return;
-
         if (miMovimiento != null)
             miMovimiento.enabled = false;
 

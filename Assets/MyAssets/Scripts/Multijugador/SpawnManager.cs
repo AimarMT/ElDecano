@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
-using System.Collections;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class SpawnManager : NetworkBehaviour
 {
@@ -9,82 +10,66 @@ public class SpawnManager : NetworkBehaviour
     [SerializeField] private Transform spawner1;
     [SerializeField] private Transform spawner2;
 
-    private bool spawnHecho = false;
+    private bool clienteSpawneado = false;
 
     public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
-        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConectado;
-        StartCoroutine(DestruirAutoSpawnYSpawnear());
-    }
 
-    private IEnumerator DestruirAutoSpawnYSpawnear()
-    {
-        spawnHecho = true; // Bloquear antes de los yields
-
-        yield return null;
-        yield return null;
-
-        int destruidos = 0;
+        // Destroy any auto-spawned player objects NGO may have created.
         foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
             if (client.PlayerObject != null)
             {
                 client.PlayerObject.Despawn(true);
-                destruidos++;
+                Debug.Log($"[SpawnManager] Auto-spawn destruido para cliente {client.ClientId}");
             }
         }
-        Debug.Log($"[SpawnManager] Auto-spawn destruido: {destruidos} player objects eliminados");
 
-        if (NetworkManager.Singleton.ConnectedClients.Count >= 2)
-        {
-            SpawnJugadores();
-        }
-        else
-        {
-            Debug.Log($"[SpawnManager] Solo {NetworkManager.Singleton.ConnectedClients.Count} cliente(s), esperando al segundo...");
-            spawnHecho = false; // Permitir que OnClientConectado actúe
-        }
+        // Spawn the host immediately â€” no need to wait for the client.
+        SpawnJugador(NetworkManager.Singleton.LocalClientId);
+
+        // Wait for the client to finish loading, then spawn them.
+        NetworkManager.SceneManager.OnLoadEventCompleted += OnEscenaCargadaCompletamente;
     }
 
-    private void OnClientConectado(ulong clientId)
+    private void OnEscenaCargadaCompletamente(string sceneName, LoadSceneMode mode,
+        List<ulong> clientesListos, List<ulong> clientesTimeout)
     {
-        if (!IsServer || spawnHecho) return;
-        Debug.Log($"[SpawnManager] Cliente {clientId} conectado. Total: {NetworkManager.Singleton.ConnectedClients.Count}");
+        if (clienteSpawneado) return;
 
-        if (NetworkManager.Singleton.ConnectedClients.Count >= 2)
-        {
-            spawnHecho = true;
-            SpawnJugadores();
-        }
-    }
+        NetworkManager.SceneManager.OnLoadEventCompleted -= OnEscenaCargadaCompletamente;
 
-    private void SpawnJugadores()
-    {
-        Debug.Log($"[SpawnManager] Spawneando jugadores. Clientes: {NetworkManager.Singleton.ConnectedClients.Count}");
+        Debug.Log($"[SpawnManager] Escena '{sceneName}' cargada en todos los clientes. Listos:{clientesListos.Count} Timeout:{clientesTimeout.Count}");
 
         foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
+            if (client.ClientId == NetworkManager.Singleton.LocalClientId) continue; // Host ya spawneado
             if (client.PlayerObject != null)
             {
-                Debug.LogWarning($"[SpawnManager] Cliente {client.ClientId} aún tiene PlayerObject, destruyendo...");
                 client.PlayerObject.Despawn(true);
+                Debug.Log($"[SpawnManager] Player object existente destruido para cliente {client.ClientId}");
             }
-
-            bool esHost = client.ClientId == 0;
-            GameObject prefab = esHost ? prefabHost : prefabClient;
-            Transform punto = esHost ? spawner1 : spawner2;
-
-            GameObject jugador = Instantiate(prefab, punto.position, punto.rotation);
-            jugador.GetComponent<NetworkObject>().SpawnAsPlayerObject(client.ClientId, true);
-
-            Debug.Log($"[SpawnManager] Jugador {client.ClientId} ({(esHost ? "HOST" : "CLIENT")}) spawneado en {punto.name} pos:{punto.position}");
+            clienteSpawneado = true;
+            SpawnJugador(client.ClientId);
         }
+    }
+
+    private void SpawnJugador(ulong clientId)
+    {
+        bool esHost = (clientId == NetworkManager.Singleton.LocalClientId);
+        GameObject prefab = esHost ? prefabHost : prefabClient;
+        Transform punto = esHost ? spawner1 : spawner2;
+
+        GameObject jugador = Instantiate(prefab, punto.position, punto.rotation);
+        jugador.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+
+        Debug.Log($"[SpawnManager] Jugador {clientId} ({(esHost ? "HOST" : "CLIENT")}) spawneado en {punto.name} pos:{punto.position}");
     }
 
     public override void OnDestroy()
     {
         if (NetworkManager.Singleton != null)
-            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConectado;
+            NetworkManager.SceneManager.OnLoadEventCompleted -= OnEscenaCargadaCompletamente;
     }
 }
