@@ -66,7 +66,7 @@ public class HandGestureMovement : MonoBehaviour
     {
         if (!_activated)
         {
-            if (Time.frameCount % 120 == 0)
+            if (Time.frameCount % 300 == 0)
                 Debug.Log($"[HGM] no activado (frame {Time.frameCount})");
             return;
         }
@@ -93,18 +93,6 @@ public class HandGestureMovement : MonoBehaviour
         bool wantsLeft   = keyA;
         bool wantsRight  = keyD;
 
-        if (anyKey)
-        {
-            string keys = "";
-            if (keySpace)  keys += "Space ";
-            if (keyShiftL) keys += "LShift ";
-            if (keyShiftR) keys += "RShift ";
-            if (keyW)      keys += "W ";
-            if (keyS)      keys += "S ";
-            if (keyA)      keys += "A ";
-            if (keyD)      keys += "D ";
-            Debug.Log($"[HGM] INPUT f{_debugFrames}: [{keys}] wantsMove:{wantsToMove} back:{wantsBack} L:{wantsLeft} R:{wantsRight}");
-        }
         if (wantsToMove != _prevWantsMove)
         {
             Debug.Log($"[HGM] wantsToMove → {wantsToMove} f:{_debugFrames} pos:{transform.position:F2}");
@@ -126,8 +114,6 @@ public class HandGestureMovement : MonoBehaviour
             Debug.Log($"[HGM] grounded → {grounded} f{_debugFrames} pos:{pos:F2}");
             _prevGrounded = grounded;
         }
-        if (_debugFrames <= 10 || _debugFrames % 30 == 0)
-            Debug.Log($"[HGM] f{_debugFrames} pos:{pos:F3} floorY:{_floorY:F2} grounded:{grounded} vVel:{_verticalVelocity:F3}");
 
         // ── GRAVITY (no cc.Move — bypasses OpenXR CC physics interception) ────
         if (grounded)
@@ -164,9 +150,6 @@ public class HandGestureMovement : MonoBehaviour
             pos.x += delta.x;
             pos.z += delta.z;
         }
-
-        if (anyKey || Vector3.Distance(prevPos, pos) > 0.01f)
-            Debug.Log($"[HGM] move f{_debugFrames}: {prevPos:F3}→{pos:F3}");
 
         transform.position = pos;
     }

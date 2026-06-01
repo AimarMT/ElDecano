@@ -75,20 +75,8 @@ public class NetworkPlayer2 : NetworkBehaviour
         else
         {
             // ── Activar renderers para que los demás puedan ver este avatar ──
-            int activados = 0;
             foreach (Renderer r in meshesToDisable)
-            {
-                if (r != null)
-                {
-                    Debug.Log($"[NP2] NO-OWNER renderer '{r.name}': enabled={r.enabled} antes de activar.");
-                    if (!r.enabled) { r.enabled = true; activados++; }
-                }
-            }
-            Debug.Log($"[NP2] NO-OWNER spawn: {activados}/{meshesToDisable.Length} renderers activados. " +
-                      $"isServer={IsServer} ownerId={OwnerClientId} localId={NetworkManager.Singleton.LocalClientId}");
-
-            // Log posición inicial
-            Debug.Log($"[NP2] NO-OWNER posición inicial: {transform.position:F3}");
+                if (r != null && !r.enabled) r.enabled = true;
             listo = true;
         }
     }
@@ -100,12 +88,7 @@ public class NetworkPlayer2 : NetworkBehaviour
         {
             // ── OWNER: escribir posición en NetworkVariables ──────────────
             if (!listo)
-            {
-                _noListoFrames++;
-                if (_noListoFrames <= 3 || _noListoFrames % 120 == 0)
-                    Debug.Log($"[NP2] no listo f{_noListoFrames}");
                 return;
-            }
             if (myXR == null || myXR.head == null) return;
 
             // Monitor
@@ -115,8 +98,8 @@ public class NetworkPlayer2 : NetworkBehaviour
                 float yDiff  = Mathf.Abs(cur.y - _monitoredRootPos.y);
                 float xzDiff = new Vector2(cur.x - _monitoredRootPos.x, cur.z - _monitoredRootPos.z).magnitude;
                 _monitorFrame++;
-                if (_monitorFrame % 60 == 0 || yDiff > 0.5f || xzDiff > 0.5f)
-                    Debug.Log($"[NP2] Monitor f{_monitorFrame}: root={cur:F3} Δy={yDiff:F2} ΔXZ={xzDiff:F2}");
+                if (yDiff > 0.5f || xzDiff > 0.5f)
+                    Debug.Log($"[NP2] Monitor: root={cur:F3} Δy={yDiff:F2} ΔXZ={xzDiff:F2}");
                 if (yDiff > 5f)  Debug.LogWarning($"[NP2] MONITOR: Y saltó {_monitoredRootPos.y:F2}→{cur.y:F2}");
                 if (xzDiff > 5f) Debug.LogWarning($"[NP2] MONITOR: XZ saltó a {cur.x:F2},{cur.z:F2}");
                 _monitoredRootPos = cur;
@@ -151,14 +134,6 @@ public class NetworkPlayer2 : NetworkBehaviour
             if (leftHand  != null) leftHand.position  = _netLH.Value;
             if (rightHand != null) rightHand.position = _netRH.Value;
 
-            if (_nonOwnerFrame <= 10 || _nonOwnerFrame % 60 == 0)
-            {
-                string rend = "";
-                foreach (var r in meshesToDisable)
-                    rend += (r != null ? $"{r.name}:{r.enabled}" : "NULL") + " ";
-                Debug.Log($"[NP2] NO-OWNER f{_nonOwnerFrame}: pos={transform.position:F3} " +
-                          $"netPos={_netPos.Value:F3} renderers=[{rend.Trim()}]");
-            }
         }
     }
 

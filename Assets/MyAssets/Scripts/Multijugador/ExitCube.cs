@@ -6,10 +6,10 @@ using System.Collections;
 public class ExitCube : NetworkBehaviour
 {
     [Header("Escenas")]
-    public string clientExitScene = "ClientEnd";
-    public string clientDeadScene = "ClientDead";
-    public string hostWinScene = "HostWin";
-    public string hostExitScene = "HostEnd";
+    public string clientExitScene = "WinMenuMultiplayerCliente";
+    public string clientDeadScene = "GameOverMenuMultiplayerCliente";
+    public string hostWinScene = "WinMenuMultiplayerHost";
+    public string hostExitScene = "GameOverMenuMultiplayerHost";
 
     private NetworkVariable<int> clientCount = new NetworkVariable<int>(0);
     private NetworkVariable<int> deadCount = new NetworkVariable<int>(0);
@@ -63,18 +63,25 @@ public class ExitCube : NetworkBehaviour
 
     private void OnClientCountChanged(int oldValue, int newValue)
     {
-        Debug.Log($"[ExitCube] Clientes restantes: {newValue}");
+        Debug.Log($"[Host] Clientes restantes: {newValue}");
 
         if (newValue <= 0 && IsServer)
         {
-            NetworkManager.Singleton.Shutdown();
-            SceneManager.LoadScene(hostExitScene);
+            if (deadCount.Value == 0)
+            {
+                // El cliente completó el puzzle y salió → el host pierde
+                Debug.Log("[Host] Cliente completó el puzzle. Cargando GameOver del host.");
+                NetworkManager.Singleton.Shutdown();
+                SceneManager.LoadScene(hostExitScene);
+            }
+            // Si deadCount > 0, el host pilló al cliente → DisconnectAndCheckWin
+            // carga WinMenuMultiplayerHost por su cuenta, aquí no hacemos nada.
         }
     }
 
     private void OnDeadCountChanged(int oldValue, int newValue)
     {
-        Debug.Log($"[ExitCube] Clientes muertos: {newValue}");
+        Debug.Log($"[Host] Clientes muertos: {newValue}");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -100,10 +107,11 @@ public class ExitCube : NetworkBehaviour
     [Rpc(SendTo.Server)]
     public void HostKillPlayerRpc(ulong victimClientId)
     {
+        Debug.Log($"[Host] HostKillPlayerRpc: victimId={victimClientId}");
         if (victimClientId == NetworkManager.ServerClientId) return;
 
         deadCount.Value++;
-
+        Debug.Log($"[Host] Cargando escena '{clientDeadScene}' en cliente {victimClientId}");
         LoadClientSceneRpc(clientDeadScene, RpcTarget.Single(victimClientId, RpcTargetUse.Temp));
         StartCoroutine(DisconnectAndCheckWin(victimClientId));
     }

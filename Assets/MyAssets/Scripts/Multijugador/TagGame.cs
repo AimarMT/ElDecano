@@ -8,8 +8,11 @@ public class TagGame : NetworkBehaviour
 
     [Header("Configuración")]
     public float cooldownInicio = 3f;
+    public float catchDistance = 2f;
     private float tiempoInicio;
     private bool juegoIniciado = false;
+    private bool capturaEnProgreso = false;
+    private int _distFrame = 0;
 
     public override void OnNetworkSpawn()
     {
@@ -39,29 +42,55 @@ public class TagGame : NetworkBehaviour
         if (!juegoIniciado && Time.time - tiempoInicio >= cooldownInicio)
         {
             juegoIniciado = true;
-            Debug.Log("[TagGame] ¡Juego iniciado!");
+            Debug.Log($"[TagGame] ¡Juego iniciado! IsHost={IsHost} IsOwner={IsOwner} pos={transform.position:F2}");
         }
-    }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (!IsHost) return;
-        if (!juegoIniciado) return;
+        if (!IsHost || !IsOwner || !juegoIniciado || capturaEnProgreso) return;
 
-        TagGame otroJugador = other.GetComponentInParent<TagGame>();
-        if (otroJugador == null) return;
-        if (otroJugador.OwnerClientId == NetworkManager.Singleton.LocalClientId) return;
+        _distFrame++;
 
-        // Call on otroJugador so the RPC runs in the context of the tagged player's object.
-        otroJugador.EliminarRpc();
+        // Busca por NetworkObject.IsPlayerObject para no depender de que
+        // el prefab del cliente tenga TagGame.
+        foreach (var netObj in FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
+        {
+            if (!netObj.IsPlayerObject) continue;
+            if (netObj.OwnerClientId == NetworkManager.Singleton.LocalClientId) continue;
+
+            float dist = Vector3.Distance(transform.position, netObj.transform.position);
+
+            if (_distFrame % 180 == 0)
+                Debug.Log($"[TagGame] Dist a cliente {netObj.OwnerClientId}: {dist:F2}m (umbral={catchDistance}) miPos={transform.position:F2} suPos={netObj.transform.position:F2}");
+
+            if (dist <= catchDistance)
+            {
+                capturaEnProgreso = true;
+                Debug.Log($"[TagGame] ¡Captura! dist={dist:F2}m clientId={netObj.OwnerClientId}");
+                ExitCube exitCube = FindAnyObjectByType<ExitCube>();
+                if (exitCube != null)
+                    exitCube.HostKillPlayerRpc(netObj.OwnerClientId);
+                else
+                    Debug.LogWarning("[TagGame] ExitCube no encontrado para la captura");
+                break;
+            }
+        }
     }
 
     [Rpc(SendTo.Server)]
     private void EliminarRpc()
     {
-        // 'this' is now the tagged player's TagGame — send to its owner.
-        DesactivarRpc(RpcTarget.Single(OwnerClientId, RpcTargetUse.Temp));
-        StartCoroutine(DespawnDespuesDeDelay(OwnerClientId));
+        Debug.Log($"[TagGame] EliminarRpc recibido para clientId={OwnerClientId}");
+        ExitCube exitCube = FindAnyObjectByType<ExitCube>();
+        if (exitCube != null)
+        {
+            Debug.Log($"[TagGame] ExitCube encontrado → HostKillPlayerRpc({OwnerClientId})");
+            exitCube.HostKillPlayerRpc(OwnerClientId);
+        }
+        else
+        {
+            Debug.LogWarning($"[TagGame] ExitCube no encontrado para clientId={OwnerClientId}, usando fallback");
+            DesactivarRpc(RpcTarget.Single(OwnerClientId, RpcTargetUse.Temp));
+            StartCoroutine(DespawnDespuesDeDelay(OwnerClientId));
+        }
     }
 
     [Rpc(SendTo.SpecifiedInParams)]
