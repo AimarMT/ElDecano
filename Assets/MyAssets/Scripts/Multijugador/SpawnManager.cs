@@ -16,20 +16,9 @@ public class SpawnManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        // Destroy any auto-spawned player objects NGO may have created.
-        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-        {
-            if (client.PlayerObject != null)
-            {
-                client.PlayerObject.Despawn(true);
-                Debug.Log($"[SpawnManager] Auto-spawn destruido para cliente {client.ClientId}");
-            }
-        }
-
-        // Spawn the host immediately — no need to wait for the client.
-        SpawnJugador(NetworkManager.Singleton.LocalClientId);
-
-        // Wait for the client to finish loading, then spawn them.
+        // No spawnear todavía — esperar a que la escena esté cargada en TODOS los clientes.
+        // Si el host spawna aquí, el NGO sincroniza el avatar al cliente mientras la escena
+        // del menú sigue activa; cuando el menú se destruye, el avatar se destruye con él.
         NetworkManager.SceneManager.OnLoadEventCompleted += OnEscenaCargadaCompletamente;
     }
 
@@ -40,19 +29,22 @@ public class SpawnManager : NetworkBehaviour
 
         NetworkManager.SceneManager.OnLoadEventCompleted -= OnEscenaCargadaCompletamente;
 
-        Debug.Log($"[SpawnManager] Escena '{sceneName}' cargada en todos los clientes. Listos:{clientesListos.Count} Timeout:{clientesTimeout.Count}");
+        Debug.Log($"[SpawnManager] Escena '{sceneName}' lista en todos los clientes. Listos:{clientesListos.Count} Timeout:{clientesTimeout.Count}");
 
+        // Ahora la escena del mapa está activa en TODOS los clientes.
+        // Spawnear host Y cliente aquí garantiza que los avatares se crean
+        // en la escena correcta y no se destruyen al descargar el menú.
         foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
-            if (client.ClientId == NetworkManager.Singleton.LocalClientId) continue; // Host ya spawneado
             if (client.PlayerObject != null)
             {
                 client.PlayerObject.Despawn(true);
-                Debug.Log($"[SpawnManager] Player object existente destruido para cliente {client.ClientId}");
+                Debug.Log($"[SpawnManager] PlayerObject existente destruido para cliente {client.ClientId}");
             }
-            clienteSpawneado = true;
             SpawnJugador(client.ClientId);
         }
+
+        clienteSpawneado = true;
     }
 
     private void SpawnJugador(ulong clientId)

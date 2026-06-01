@@ -7,7 +7,8 @@
       "Bash(Get-Content \"C:\\\\Users\\\\ane.lecue\\\\AppData\\\\Local\\\\Unity\\\\Editor\\\\Editor.log\")",
       "Bash(Select-Object -Last 300)",
       "Bash(dir \"C:\\\\Users\\\\ane.lecue\\\\AppData\\\\LocalLow\\\\Bugisoft\\\\ElDecano\\\\\" /o-d /b 2>&1 | head -5)",
-      "PowerShell(Select-String -Path \"C:\\\\Users\\\\ane.lecue\\\\AppData\\\\LocalLow\\\\Bugisoft\\\\ElDecano\\\\GameLog_2026-05-30_21-58-38.txt\" -Pattern \"\\\\[HGM\\\\] INPUT|wantsToMove . true|cc\\\\.Move|LU Snap|U Snap\" | Select-Object -First 60 | ForEach-Object { $_.Line })"
+      "PowerShell(Select-String -Path \"C:\\\\Users\\\\ane.lecue\\\\AppData\\\\LocalLow\\\\Bugisoft\\\\ElDecano\\\\GameLog_2026-05-30_21-58-38.txt\" -Pattern \"\\\\[HGM\\\\] INPUT|wantsToMove . true|cc\\\\.Move|LU Snap|U Snap\" | Select-Object -First 60 | ForEach-Object { $_.Line })",
+      "Bash(ls \"C:\\\\Users\\\\ane.lecue\\\\AppData\\\\LocalLow\\\\Bugisoft\\\\ElDecano\\\\\" 2>/dev/null || dir \"C:\\\\Users\\\\ane.lecue\\\\AppData\\\\LocalLow\\\\Bugisoft\\\\ElDecano\\\\\")"
     ]
   }
 }

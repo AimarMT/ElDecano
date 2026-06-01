@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 370439302002190763}
   - component: {fileID: -6716015376305019130}
   - component: {fileID: -7210762330997948878}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ProtaCabeza
   m_TagString: Untagged
   m_Icon: {fileID: 0}
